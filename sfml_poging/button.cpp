@@ -14,6 +14,8 @@ Button::Button(int x, int y, int width, int height, string text, guiStyle baseSt
     this->baseStyle = baseStyle;
     this->hoverStyle = hoverStyle;
     this->text = text;
+
+    applyBaseStyle();
 }
 
 void Button::applyBaseStyle() {
