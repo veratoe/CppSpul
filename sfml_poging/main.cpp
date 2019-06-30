@@ -3,6 +3,8 @@
 #include <iostream>
 
 #include "app.h"
+#include "button.h"
+#include "guimanager.h"
 
 sf::Font font;
 
@@ -15,8 +17,26 @@ int main() {
 		printf("er ging iets fout met het laden van het font ..\n");
 	}
 
+	guiStyle buttonBaseStyle = {
+		0xddddddff, // fillColor,
+		0xaaaaaaff, // borderColor
+		2 // thickness
+	};
+
+	guiStyle buttonHoverStyle = {
+		0xeeeeeeff, // fillColor,
+		0xbbbbbbff, // borderColor
+		2 // thickness
+	};
+
+	Button button(500, 500, 100, 20, "Explode", buttonBaseStyle, buttonHoverStyle);
+
 	app::setup(&window, &font );
 	printf("done setting up application..\n");
+
+	guiManager::setup(&window);
+	printf("done setting up the GUI manager..\n");
+
 
 	//window.setIcon();
 
@@ -28,6 +48,9 @@ int main() {
 			if (event.type == sf::Event::Closed) {
 				window.close();
 			}
+
+			guiManager::processEvent(event);
+
 		}
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
@@ -36,7 +59,6 @@ int main() {
 		}
 
 		app::update();
-		//window.display();
 	}
 
 	window.clear();

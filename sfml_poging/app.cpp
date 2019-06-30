@@ -5,6 +5,7 @@
 
 #include "app.h"
 #include "cell.h"
+#include "guiManager.h"
 
 sf::RenderWindow* app::window;
 sf::Font* app::font;
@@ -20,7 +21,7 @@ unsigned int app::getTime() {
 
 }
 
-void app::printw(string s, int x, int y, sf::Color color) {
+void app::printw(string s, int x, int y, sf::Uint32 color) {
 
 	sf::Text text;
 
@@ -28,7 +29,7 @@ void app::printw(string s, int x, int y, sf::Color color) {
     text.setPosition(x, y);
     text.setString(s);
 	text.setCharacterSize(12);
-	text.setFillColor(color);
+	text.setFillColor(sf::Color(color));
 	(*window).draw(text);
 
 }
@@ -64,9 +65,9 @@ void app::update() {
     timer = getTime();
 
     //printf("timer: %s, nu: %s \n", timer,  getTime());
-    printf("timer: %i\n", timer);
+    //printf("timer: %i\n", timer);
 
-    (*window).clear(sf::Color(0xc1e7ffff));
+    window->clear(sf::Color(0xc1e7ffff));
 
     // update
     for (auto iterator : cell::cells) {
@@ -85,7 +86,7 @@ void app::update() {
         }
     }
 
-
+    // nieuw celletjes mergen;
     for (auto iterator : cell::new_cells) {
         cell::cells.push_back(iterator);
     }
@@ -93,7 +94,7 @@ void app::update() {
     cell::new_cells.clear();
 
     std::string s = "cellen: " + std::to_string(cell::cells.size());
-    app::printw(s, 20, 550, sf::Color(0x888888ff));
+    app::printw(s, 20, 550, 0x888888ff);
 
 
     //app::printw(std::to_string(getTime() - start_time), 170, 550, sf::Color(0x888888ff));
@@ -102,10 +103,11 @@ void app::update() {
     sprintf(r, "%.2f", (float) (getTime() - start_time) / 1000);
     string sr = r;
 
-    app::printw("tijd: " + sr, 170, 550, sf::Color(0x888888ff));
+    app::printw("tijd: " + sr, 170, 550, 0x888888ff);
 
-    // nieuw celletjes mergen;
-    (*window).display();
+    guiManager::update();
+
+    window->display();
 
 
 
