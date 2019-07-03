@@ -10,10 +10,15 @@ void guiElement::processEvent(sf::Event& event) {
 
     switch(event.type) {
         case sf::Event::MouseMoved: 
-            if (baseElement->getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)) {
-                onHover();
-            } else {
-                onLeave();
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && baseElement->getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)) {
+                onDrag(event);
+
+            } else  {
+                if (baseElement->getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)) {
+                    onHover();
+                } else {
+                    onLeave();
+                }
             }
             break;
 
@@ -22,6 +27,13 @@ void guiElement::processEvent(sf::Event& event) {
                 onClick(event);
             }
     }
+
+}
+
+void guiElement::onDrag(sf::Event& event) {
+
+    // ...
+    // virtual
 
 }
 

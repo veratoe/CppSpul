@@ -25,8 +25,8 @@ int main() {
 	};
 
 	guiStyle buttonHoverStyle = {
-		0xeeeeeeff, // fillColor,
-		0xbbbbbbff, // borderColor
+		0xe3e3e3ff, // fillColor,
+		0xb8b8b8ff, // borderColor
 		2 // thickness
 	};
 
@@ -42,9 +42,14 @@ int main() {
 		0 // thickness
 	};
 
-	Button button(500, 500, 100, 20, "Explode", buttonBaseStyle, buttonHoverStyle);
+	//Button button(500, 500, 100, 20, "Explode", buttonBaseStyle, buttonHoverStyle);
 
-	Slider slider(500, 550, 100, 20, buttonBaseStyle, buttonHoverStyle, dialBaseStyle, dialHoverStyle);
+	
+
+	Slider a(500, 520, 100, 20, buttonBaseStyle, buttonHoverStyle, { 0x88ffccff, 0, 0 }, { 0xaaffd8ff, 0, 0 }, [](float a) { app::v = a * 2000; });
+	a.set((float) app::v / 2000);
+	Slider b(500, 550, 100, 20, buttonBaseStyle, buttonHoverStyle, dialBaseStyle, dialHoverStyle, [](float a) { app::death_rate = a * 15000; });
+	b.set((float) app::death_rate / 15000);
 
 	app::setup(&window, &font );
 	printf("done setting up application..\n");

@@ -3,7 +3,7 @@
 
 Slider::Slider(int x, int y, int width, int height, 
     guiStyle containerBaseStyle, guiStyle containerHoverStyle, 
-    guiStyle dialBaseStyle, guiStyle dialHoverStyle 
+    guiStyle dialBaseStyle, guiStyle dialHoverStyle, function< void(float) > onChange
     ) {
 
     this->x = x;
@@ -22,6 +22,8 @@ Slider::Slider(int x, int y, int width, int height,
     this->dialBaseStyle = dialBaseStyle;
     this->dialHoverStyle = dialHoverStyle;
     this->text = text;
+
+    this->onChange = onChange;
 
     applyBaseStyle();
 }
@@ -50,18 +52,28 @@ void Slider::applyHoverStyle() {
     this->dial->setOutlineThickness(dialHoverStyle.thickness);
 }
 
+void Slider::set(float value) {
+    setDial(value * width);
+}
+
 void Slider::draw(sf::RenderWindow& window) {
     window.draw(*baseElement);
     window.draw(*dial);
 }
 
+void Slider::setDial(int value) {
+    if (value < 0) value = 0;
+    if (value > width) value = width;
+    dial->setSize(sf::Vector2f( value, height - 2 * containerBaseStyle.thickness));
+    onChange((float) value / width);
+}
+
 void Slider::onClick(sf::Event& event) {
+    int value = event.mouseButton.x - baseElement->getGlobalBounds().left;
+    setDial(value);
+}
 
-    cout << event.mouseButton.x << endl;
-
-    cout << event.mouseButton.x - baseElement->getGlobalBounds().left << endl;
-
-
-    dial->setSize(sf::Vector2f( event.mouseButton.x - baseElement->getGlobalBounds().left, height - 2 * containerBaseStyle.thickness));
-
+void Slider::onDrag(sf::Event& event) {
+    int value = event.mouseMove.x - baseElement->getGlobalBounds().left;
+    setDial(value);
 }

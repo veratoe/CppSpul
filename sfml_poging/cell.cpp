@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include "cell.h"
+#include "app.h"
 
 using namespace std;
 
@@ -61,7 +62,7 @@ void cell::update() {
 
     findNeighbors();
 
-    if (neighbors.size() < 3 && rand() & 1000 > 400) {
+    if (neighbors.size() < 8 && rand () % 1000 > 900 ) {
         int offsetX = rand() % 3 - 1;
         int offsetY = rand() % 3 - 1;
 
@@ -72,10 +73,10 @@ void cell::update() {
         }
     }
 
-    if (neighbors.size() > 6) {
+    if (neighbors.size() > 7) {
         kill();
     }
-    if (rand() % 15000 < cell::cells.size()) {
+    if (rand() < app::death_rate) {
         kill();
     }
 

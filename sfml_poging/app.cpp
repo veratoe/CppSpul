@@ -13,6 +13,9 @@ sf::Font* app::font;
 unsigned int app::timer;
 unsigned int app::start_time;
 
+int app::v = 180;
+int app::death_rate = 1050;
+
 unsigned int app::getTime() {
 
     auto now = chrono::system_clock::now();
@@ -58,46 +61,43 @@ void app::setup(sf::RenderWindow* window, sf::Font* font) {
 
 void app::update() {
 
-    if (timer + 20 > getTime()) {
-        return;
-    }
-
-    timer = getTime();
-
-    //printf("timer: %s, nu: %s \n", timer,  getTime());
-    //printf("timer: %i\n", timer);
-
     window->clear(sf::Color(0xc1e7ffff));
 
-    // update
-    for (auto iterator : cell::cells) {
-        (*iterator).update();
-        (*iterator).draw(*window);
-    }
+    if (timer + v < getTime()) {
 
-    // possibly delete;
-    auto iterator = cell::cells.begin();
-    while (iterator != cell::cells.end()) {
-        if ((*iterator)->destroyed == true) {
-            delete *iterator;
-            iterator = cell::cells.erase(iterator);
-        } else {
-            ++iterator;
+        // update
+        for (auto iterator : cell::cells) {
+            iterator->update();
         }
+
+        // possibly delete;
+        auto iterator = cell::cells.begin();
+        while (iterator != cell::cells.end()) {
+            if ((*iterator)->destroyed == true) {
+                delete *iterator;
+                iterator = cell::cells.erase(iterator);
+            } else {
+                ++iterator;
+            }
+        }
+
+        // nieuw celletjes mergen;
+        for (auto iterator : cell::new_cells) {
+            cell::cells.push_back(iterator);
+        }
+
+        cell::new_cells.clear();
+
+
+        timer = getTime();
     }
 
-    // nieuw celletjes mergen;
-    for (auto iterator : cell::new_cells) {
-        cell::cells.push_back(iterator);
+    for (auto iterator : cell::cells) {
+        iterator->draw(*window);
     }
-
-    cell::new_cells.clear();
 
     std::string s = "cellen: " + std::to_string(cell::cells.size());
     app::printw(s, 20, 550, 0x888888ff);
-
-
-    //app::printw(std::to_string(getTime() - start_time), 170, 550, sf::Color(0x888888ff));
 
     char r[10];
     sprintf(r, "%.2f", (float) (getTime() - start_time) / 1000);
@@ -105,6 +105,10 @@ void app::update() {
 
     app::printw("tijd: " + sr, 170, 550, 0x888888ff);
 
+    app::printw("vertraging", 400, 520, 0x888888ff);
+    app::printw("sterfte", 400, 550, 0x888888ff);
+    app::printw(std::to_string(app::v), 650, 520, 0x888888ff);
+    app::printw(std::to_string(app::death_rate), 650, 550, 0x888888ff);
     guiManager::update();
 
     window->display();

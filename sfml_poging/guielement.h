@@ -23,6 +23,7 @@ class guiElement {
         virtual void onHover();
         virtual void onLeave();
         virtual void onClick(sf::Event& event);
+        virtual void onDrag(sf::Event& event);
 
         sf::Shape* baseElement;
         struct style;

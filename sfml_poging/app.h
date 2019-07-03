@@ -8,6 +8,7 @@ class app {
     static sf::RenderWindow* window;
     static sf::Font* font;
 
+
     static unsigned int timer;
     static unsigned int start_time;
 
@@ -18,6 +19,8 @@ class app {
         static void setup(sf::RenderWindow* window, sf::Font* font);
 
         static unsigned int getTime();
+        static int v;
+        static int death_rate;
 };
 
 #endif
