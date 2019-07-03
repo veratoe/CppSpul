@@ -4,6 +4,7 @@
 
 #include "app.h"
 #include "button.h"
+#include "slider.h"
 #include "guimanager.h"
 
 sf::Font font;
@@ -29,7 +30,21 @@ int main() {
 		2 // thickness
 	};
 
+	guiStyle dialBaseStyle = {
+		0xff8888ff, // fillColor,
+		0xbbbbbbff, // borderColor
+		0 // thickness
+	};
+
+	guiStyle dialHoverStyle = {
+		0xffaaaaff, // fillColor,
+		0xbbbbbbff, // borderColor
+		0 // thickness
+	};
+
 	Button button(500, 500, 100, 20, "Explode", buttonBaseStyle, buttonHoverStyle);
+
+	Slider slider(500, 550, 100, 20, buttonBaseStyle, buttonHoverStyle, dialBaseStyle, dialHoverStyle);
 
 	app::setup(&window, &font );
 	printf("done setting up application..\n");

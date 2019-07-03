@@ -4,7 +4,7 @@
 
 using namespace std;
 
-class Button : public guiElement {
+class Button : guiElement {
 
     int x;
     int y;
@@ -15,7 +15,7 @@ class Button : public guiElement {
     guiStyle hoverStyle;
     string text;
 
-    sf::RectangleShape* rectangle;
+    //sf::RectangleShape* baseElement;
 
     void applyBaseStyle();
     void applyHoverStyle();
@@ -25,5 +25,9 @@ class Button : public guiElement {
         Button(int x, int y, int width, int height, string text, guiStyle baseStyle, guiStyle hoverStyle);
         void processEvent(sf::Event& event);
         void draw(sf::RenderWindow& window);
+
+        // void onHover();
+        // void onLeave();
+        void onClick();
 
 };
