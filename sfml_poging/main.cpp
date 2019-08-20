@@ -9,7 +9,13 @@
 
 sf::Font font;
 
+int ii = 0;
+
+unsigned int startTime = 0;
+
 int main() {
+
+	startTime = app::getTime();
 
 	printf("starting application..\n");
 
@@ -57,21 +63,23 @@ int main() {
 	guiManager::setup(&window);
 	printf("done setting up the GUI manager..\n");
 
+	window.setFramerateLimit(60);
 
 	//window.setIcon();
 
 	while (window.isOpen()) { 
 
 		sf::Event event;
-		while (window.pollEvent(event)) {
+		if (window.pollEvent(event)) {
 
 			if (event.type == sf::Event::Closed) {
 				window.close();
 			}
-
-			guiManager::processEvent(event);
-
 		}
+
+
+		guiManager::processEvent(event);
+
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
 			std::cout << "ESC pressed, exiting application ....";
@@ -79,7 +87,12 @@ int main() {
 		}
 
 		app::update();
+
+		ii++;
 	}
+
+	std::cout << ii << std::endl;
+	std::cout << app::getTime() - startTime; 
 
 	window.clear();
 

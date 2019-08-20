@@ -14,6 +14,8 @@ class cell {
         ~cell();
         cell(int _x, int _y);
 
+        cell(const cell &cell);
+
         void update();
         void kill();
 

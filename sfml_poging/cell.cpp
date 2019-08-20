@@ -23,6 +23,11 @@ cell::cell(int _x, int _y) {
 
     destroyed = false;
 
+
+}
+
+cell::cell(const cell &cell) {
+    cout << "WUBWUBWUBWA" << endl;
 }
 
 cell::~cell() {

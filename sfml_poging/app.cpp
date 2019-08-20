@@ -71,6 +71,7 @@ void app::update() {
         }
 
         // possibly delete;
+        /*
         auto iterator = cell::cells.begin();
         while (iterator != cell::cells.end()) {
             if ((*iterator)->destroyed == true) {
@@ -80,11 +81,12 @@ void app::update() {
                 ++iterator;
             }
         }
+        */
 
         // nieuw celletjes mergen;
-        for (auto iterator : cell::new_cells) {
+        /*for (auto iterator : cell::new_cells) {
             cell::cells.push_back(iterator);
-        }
+        }*/
 
         cell::new_cells.clear();
 
@@ -109,7 +111,7 @@ void app::update() {
     app::printw("sterfte", 400, 550, 0x888888ff);
     app::printw(std::to_string(app::v), 650, 520, 0x888888ff);
     app::printw(std::to_string(app::death_rate), 650, 550, 0x888888ff);
-    guiManager::update();
+    //guiManager::update();
 
     window->display();
 
