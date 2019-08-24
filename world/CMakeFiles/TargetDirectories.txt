@@ -1,0 +1,3 @@
+/home/wubmans/Documents/c++/sfml/CMakeFiles/rebuild_cache.dir
+/home/wubmans/Documents/c++/sfml/CMakeFiles/edit_cache.dir
+/home/wubmans/Documents/c++/sfml/CMakeFiles/main.dir

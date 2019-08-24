@@ -1,0 +1,1 @@
+/usr/bin/g++      CMakeFiles/main.dir/bla.cpp.o CMakeFiles/main.dir/app.cpp.o CMakeFiles/main.dir/main.cpp.o CMakeFiles/main.dir/noise.cpp.o  -o main  -L/home/wubmans/Downloads/SFML-2.5.1/lib -rdynamic -lsfml-graphics -lsfml-window -lsfml-system -Wl,-rpath,/home/wubmans/Downloads/SFML-2.5.1/lib 
