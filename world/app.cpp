@@ -24,7 +24,7 @@ int getTileMask(std::vector< std::vector<float> >& world, int a, int b) {
     int mask = 1;
     int value = 0; 
 
-    for (int j = -1; j < 2; j++) {
+    for (int j = 1; j > -2; j--) {
         for (int i = -1; i < 2; i++) {
             if ((a + i < 0 || b + j < 0) || (a + i > world.size() - 1 || b + j > world[i].size() - 1))  {
                 mask = mask << 1;
@@ -62,20 +62,44 @@ void app::initialize(std::vector< std::vector<float> >& world) {
 
     for (int j = 0; j < 21; j++) {
         for (int i = 0; i < 12; i++) {
-            tiles[i * 21 + j].scale(sf::Vector2f(1.0f, 1.0f));
+            tiles[i * 21 + j].scale(sf::Vector2f(1.0f, -1.0f));
             tiles[j * 12 + i].setTexture(t);
             tiles[j * 12 + i].setTextureRect(sf::IntRect(i*16, j*16, 16, 16));
         }
     }
 
-    //printf("%i", world.size());
+    int done = false;
+
+    while (!done) {
+        done = true;
+        for (int j = 0; j < 200; j++) {
+            for (int i = 0; i < 200; i++) {
+                if (world[i][j] == 0) { 
+                    int mask = getTileMask(world, i, j);
+                    //if (mask & 26 == 26) printf("wub\n");
+                    //if (mask & 90 == 90) printf("wub ");
+                    //if ((mask & 90 == 26) || (mask & 90 == 74) || (mask & 90 == 82) || (mask & 90 == 84) || (mask & 90 == 90)) {
+                    int bla = (mask & 90);
+                    if (bla == 90 || bla == 26 || bla == 74 || bla == 82 || bla == 88 || bla == 66 || bla == 24) {
+                        printf("%i ", mask);
+                        world[i][j] = 1.0;
+                        done = false;
+                    }
+                } 
+            }
+        }
+    }
 
     for (int j = 0; j < 200; j++) {
         for (int i = 0; i < 200; i++) {
 
+
+        
+
             int mask = 0;
             int index = 61;
             mask = getTileMask(world, i, j);
+
 
             if (world[i][j] == 0) {
                 if (mask == 1) index = 97;
@@ -84,11 +108,10 @@ void app::initialize(std::vector< std::vector<float> >& world) {
                 if (mask == 128) index = 84;
 
 
-                //if ((mask & 2) && (mask & 8) && !(mask & 16) && !(mask && 64 )) index = 48;
-                //if ((mask & 2) && (mask & 8) && !(mask & 16)) index = 48;
-                //if ((mask & 2) && (mask & 16) && !(mask & 8) && !(mask && 64 )) index = 50;
-
-                if (mask & 16 && mask & 64 )  index = 13;
+                if ((mask & 2) && (mask & 8) && !(mask & 16) && !(mask & 64 )) index = 48;
+                if ((mask & 2) && !(mask & 8) && (mask & 16) && !(mask & 64 )) index = 50;
+                if (!(mask & 2) && (mask & 8) && !(mask & 16) && (mask & 64 )) index = 72;
+                if (!(mask & 2) && !(mask & 8) && (mask & 16) && (mask & 64 )) index = 74;
 
                 if (mask ==  16 || mask == 20 || mask == 144 || mask == 148) index = 62;
                 if (mask ==  8 || mask == 9 || mask == 40 || mask == 41) index = 60;

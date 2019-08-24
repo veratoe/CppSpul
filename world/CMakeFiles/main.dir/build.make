@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/wubmans/Documents/c++/sfml
+CMAKE_SOURCE_DIR = /home/wubmans/Documents/cpp_spul/world
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/wubmans/Documents/c++/sfml
+CMAKE_BINARY_DIR = /home/wubmans/Documents/cpp_spul/world
 
 # Include any dependencies generated for this target.
 include CMakeFiles/main.dir/depend.make
@@ -59,16 +59,16 @@ include CMakeFiles/main.dir/flags.make
 
 CMakeFiles/main.dir/bla.cpp.o: CMakeFiles/main.dir/flags.make
 CMakeFiles/main.dir/bla.cpp.o: bla.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wubmans/Documents/c++/sfml/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/main.dir/bla.cpp.o"
-	/usr/bin/g++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/bla.cpp.o -c /home/wubmans/Documents/c++/sfml/bla.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wubmans/Documents/cpp_spul/world/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/main.dir/bla.cpp.o"
+	/usr/bin/g++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/bla.cpp.o -c /home/wubmans/Documents/cpp_spul/world/bla.cpp
 
 CMakeFiles/main.dir/bla.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.dir/bla.cpp.i"
-	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wubmans/Documents/c++/sfml/bla.cpp > CMakeFiles/main.dir/bla.cpp.i
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wubmans/Documents/cpp_spul/world/bla.cpp > CMakeFiles/main.dir/bla.cpp.i
 
 CMakeFiles/main.dir/bla.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/bla.cpp.s"
-	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wubmans/Documents/c++/sfml/bla.cpp -o CMakeFiles/main.dir/bla.cpp.s
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wubmans/Documents/cpp_spul/world/bla.cpp -o CMakeFiles/main.dir/bla.cpp.s
 
 CMakeFiles/main.dir/bla.cpp.o.requires:
 
@@ -83,16 +83,16 @@ CMakeFiles/main.dir/bla.cpp.o.provides.build: CMakeFiles/main.dir/bla.cpp.o
 
 CMakeFiles/main.dir/app.cpp.o: CMakeFiles/main.dir/flags.make
 CMakeFiles/main.dir/app.cpp.o: app.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wubmans/Documents/c++/sfml/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/main.dir/app.cpp.o"
-	/usr/bin/g++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/app.cpp.o -c /home/wubmans/Documents/c++/sfml/app.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wubmans/Documents/cpp_spul/world/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/main.dir/app.cpp.o"
+	/usr/bin/g++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/app.cpp.o -c /home/wubmans/Documents/cpp_spul/world/app.cpp
 
 CMakeFiles/main.dir/app.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.dir/app.cpp.i"
-	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wubmans/Documents/c++/sfml/app.cpp > CMakeFiles/main.dir/app.cpp.i
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wubmans/Documents/cpp_spul/world/app.cpp > CMakeFiles/main.dir/app.cpp.i
 
 CMakeFiles/main.dir/app.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/app.cpp.s"
-	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wubmans/Documents/c++/sfml/app.cpp -o CMakeFiles/main.dir/app.cpp.s
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wubmans/Documents/cpp_spul/world/app.cpp -o CMakeFiles/main.dir/app.cpp.s
 
 CMakeFiles/main.dir/app.cpp.o.requires:
 
@@ -107,16 +107,16 @@ CMakeFiles/main.dir/app.cpp.o.provides.build: CMakeFiles/main.dir/app.cpp.o
 
 CMakeFiles/main.dir/main.cpp.o: CMakeFiles/main.dir/flags.make
 CMakeFiles/main.dir/main.cpp.o: main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wubmans/Documents/c++/sfml/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/main.dir/main.cpp.o"
-	/usr/bin/g++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/main.cpp.o -c /home/wubmans/Documents/c++/sfml/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wubmans/Documents/cpp_spul/world/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/main.dir/main.cpp.o"
+	/usr/bin/g++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/main.cpp.o -c /home/wubmans/Documents/cpp_spul/world/main.cpp
 
 CMakeFiles/main.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.dir/main.cpp.i"
-	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wubmans/Documents/c++/sfml/main.cpp > CMakeFiles/main.dir/main.cpp.i
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wubmans/Documents/cpp_spul/world/main.cpp > CMakeFiles/main.dir/main.cpp.i
 
 CMakeFiles/main.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/main.cpp.s"
-	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wubmans/Documents/c++/sfml/main.cpp -o CMakeFiles/main.dir/main.cpp.s
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wubmans/Documents/cpp_spul/world/main.cpp -o CMakeFiles/main.dir/main.cpp.s
 
 CMakeFiles/main.dir/main.cpp.o.requires:
 
@@ -131,16 +131,16 @@ CMakeFiles/main.dir/main.cpp.o.provides.build: CMakeFiles/main.dir/main.cpp.o
 
 CMakeFiles/main.dir/noise.cpp.o: CMakeFiles/main.dir/flags.make
 CMakeFiles/main.dir/noise.cpp.o: noise.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wubmans/Documents/c++/sfml/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/main.dir/noise.cpp.o"
-	/usr/bin/g++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/noise.cpp.o -c /home/wubmans/Documents/c++/sfml/noise.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/wubmans/Documents/cpp_spul/world/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/main.dir/noise.cpp.o"
+	/usr/bin/g++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/noise.cpp.o -c /home/wubmans/Documents/cpp_spul/world/noise.cpp
 
 CMakeFiles/main.dir/noise.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.dir/noise.cpp.i"
-	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wubmans/Documents/c++/sfml/noise.cpp > CMakeFiles/main.dir/noise.cpp.i
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/wubmans/Documents/cpp_spul/world/noise.cpp > CMakeFiles/main.dir/noise.cpp.i
 
 CMakeFiles/main.dir/noise.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/noise.cpp.s"
-	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wubmans/Documents/c++/sfml/noise.cpp -o CMakeFiles/main.dir/noise.cpp.s
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/wubmans/Documents/cpp_spul/world/noise.cpp -o CMakeFiles/main.dir/noise.cpp.s
 
 CMakeFiles/main.dir/noise.cpp.o.requires:
 
@@ -169,7 +169,7 @@ main: CMakeFiles/main.dir/main.cpp.o
 main: CMakeFiles/main.dir/noise.cpp.o
 main: CMakeFiles/main.dir/build.make
 main: CMakeFiles/main.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/wubmans/Documents/c++/sfml/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/wubmans/Documents/cpp_spul/world/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable main"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/main.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -189,6 +189,6 @@ CMakeFiles/main.dir/clean:
 .PHONY : CMakeFiles/main.dir/clean
 
 CMakeFiles/main.dir/depend:
-	cd /home/wubmans/Documents/c++/sfml && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/wubmans/Documents/c++/sfml /home/wubmans/Documents/c++/sfml /home/wubmans/Documents/c++/sfml /home/wubmans/Documents/c++/sfml /home/wubmans/Documents/c++/sfml/CMakeFiles/main.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/wubmans/Documents/cpp_spul/world && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/wubmans/Documents/cpp_spul/world /home/wubmans/Documents/cpp_spul/world /home/wubmans/Documents/cpp_spul/world /home/wubmans/Documents/cpp_spul/world /home/wubmans/Documents/cpp_spul/world/CMakeFiles/main.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/main.dir/depend
 

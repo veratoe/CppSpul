@@ -6,21 +6,21 @@
 
 #IncludeRegexTransform: 
 
-/home/wubmans/Documents/c++/sfml/app.cpp
+/home/wubmans/Documents/cpp_spul/world/app.cpp
 app.h
-/home/wubmans/Documents/c++/sfml/app.h
+/home/wubmans/Documents/cpp_spul/world/app.h
 SFML/Graphics.hpp
 -
 stdio.h
 -
 
-/home/wubmans/Documents/c++/sfml/app.h
+/home/wubmans/Documents/cpp_spul/world/app.h
 SFML/Graphics.hpp
 -
 
-/home/wubmans/Documents/c++/sfml/bla.cpp
+/home/wubmans/Documents/cpp_spul/world/bla.cpp
 
-/home/wubmans/Documents/c++/sfml/main.cpp
+/home/wubmans/Documents/cpp_spul/world/main.cpp
 SFML/Graphics.hpp
 -
 SFML/Audio.hpp
@@ -30,13 +30,13 @@ stdio.h
 vector
 -
 app.h
-/home/wubmans/Documents/c++/sfml/app.h
+/home/wubmans/Documents/cpp_spul/world/app.h
 noise.h
-/home/wubmans/Documents/c++/sfml/noise.h
+/home/wubmans/Documents/cpp_spul/world/noise.h
 
-/home/wubmans/Documents/c++/sfml/noise.cpp
+/home/wubmans/Documents/cpp_spul/world/noise.cpp
 noise.h
-/home/wubmans/Documents/c++/sfml/noise.h
+/home/wubmans/Documents/cpp_spul/world/noise.h
 vector
 -
 stdio.h
@@ -46,7 +46,7 @@ cstdlib
 time.h
 -
 
-/home/wubmans/Documents/c++/sfml/noise.h
+/home/wubmans/Documents/cpp_spul/world/noise.h
 vector
 -
 

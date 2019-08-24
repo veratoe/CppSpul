@@ -4,10 +4,10 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/wubmans/Documents/c++/sfml/app.cpp" "/home/wubmans/Documents/c++/sfml/CMakeFiles/main.dir/app.cpp.o"
-  "/home/wubmans/Documents/c++/sfml/bla.cpp" "/home/wubmans/Documents/c++/sfml/CMakeFiles/main.dir/bla.cpp.o"
-  "/home/wubmans/Documents/c++/sfml/main.cpp" "/home/wubmans/Documents/c++/sfml/CMakeFiles/main.dir/main.cpp.o"
-  "/home/wubmans/Documents/c++/sfml/noise.cpp" "/home/wubmans/Documents/c++/sfml/CMakeFiles/main.dir/noise.cpp.o"
+  "/home/wubmans/Documents/cpp_spul/world/app.cpp" "/home/wubmans/Documents/cpp_spul/world/CMakeFiles/main.dir/app.cpp.o"
+  "/home/wubmans/Documents/cpp_spul/world/bla.cpp" "/home/wubmans/Documents/cpp_spul/world/CMakeFiles/main.dir/bla.cpp.o"
+  "/home/wubmans/Documents/cpp_spul/world/main.cpp" "/home/wubmans/Documents/cpp_spul/world/CMakeFiles/main.dir/main.cpp.o"
+  "/home/wubmans/Documents/cpp_spul/world/noise.cpp" "/home/wubmans/Documents/cpp_spul/world/CMakeFiles/main.dir/noise.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
