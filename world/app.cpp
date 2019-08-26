@@ -15,7 +15,8 @@ std::vector< std::vector<float> > humidity;
 std::vector< std::vector<int> > terrain;
 std::vector< std::vector<int> > buildings;
 
-std::vector< std::vector<int> > world; // de tilemap codes
+std::vector< std::vector<int> > terrain_tiles; // de tilemap codes
+std::vector< std::vector<int> > buildings_tiles; // de tilemap codes
 
 sf::Font font;
 
@@ -23,6 +24,8 @@ sf::Sprite tiles[12 * 21];
 
 int tileMapSize = 16;
 int tileSize = 32;
+
+int currentBuild; // wat gaan we bouwen
 
 sf::RenderWindow* app::window;
 
@@ -37,6 +40,8 @@ int oldMouseX, oldMouseY, oldMouseWheelDelta;
 float zoom = 1.0f;
 
 TileMap terrain_layer, buildings_layer;
+
+bool debugViewOn = false;
 
 int getTileMask(const std::vector< std::vector<int> >& array,  int a, int b, int tile) {
 
@@ -90,12 +95,9 @@ void app::initialize() {
 
 
     terrain = std::vector< std::vector<int> >(worldY, std::vector<int>(worldX));
-    world = std::vector< std::vector<int> >(worldY, std::vector<int>(worldX));
-    buildings = std::vector< std::vector<int> >(worldY, std::vector<int>(worldX, 8));
-
-    buildings[10][10] = 2;
-    buildings[10][9] = 1;
-    buildings[20][10] = 2;
+    terrain_tiles = std::vector< std::vector<int> >(worldY, std::vector<int>(worldX));
+    buildings = std::vector< std::vector<int> >(worldY, std::vector<int>(worldX, 8)); // 8 = default transparant
+    buildings_tiles = std::vector< std::vector<int> >(worldY, std::vector<int>(worldX, 8)); // 8 = default transparant
 
     sf::Image image;
     image.create(worldX, worldY);
@@ -254,14 +256,14 @@ void app::initialize() {
                 if (mask ==  64 || mask == 96 || mask == 192 || mask == 224) index = 79;
             }
 
-            world[i][j] = index;
+            terrain_tiles[i][j] = index;
         }
 
     }
     
 
-    terrain_layer.load("overworld_tileset_grass.png", sf::Vector2u(16, 16), world, worldX, worldY);
-    buildings_layer.load("overworld_tileset_grass.png", sf::Vector2u(16, 16), buildings, worldX, worldY);
+    terrain_layer.load("overworld_tileset_grass.png", sf::Vector2u(16, 16), terrain_tiles, worldX, worldY);
+    buildings_layer.load("overworld_tileset_grass.png", sf::Vector2u(16, 16), buildings_tiles, worldX, worldY);
 
     terrain_layer.scale(sf::Vector2f(2.0f, 2.0f));
     buildings_layer.scale(sf::Vector2f(2.0f, 2.0f));
@@ -278,34 +280,15 @@ void app::debugView() {
         for (int i = 0; i < worldX; i++) {
             int index = 0;
 
-            text.setString(std::to_string(world[i][j]));
+            text.setString(std::to_string(terrain_tiles[i][j]));
             text.setPosition(i * tileSize + 4, j * tileSize + 4);
             text.setFillColor(sf::Color({ 255, 255, 255, 90 }));
             window->draw(text);
 
-            text.setString(std::to_string(buildings[i][j]));
+            text.setString(std::to_string(buildings_tiles[i][j]));
             text.setPosition(i * tileSize + 4, j * tileSize + 16);
             text.setFillColor(sf::Color({ 255, 0, 0, 90 }));
             window->draw(text);
-
-
-
-            if (buildings[i][j] == 0) {
-                continue;
-            }
-
-            if (buildings[i][j] == 1) {
-                index = 6;
-            }
-
-            if (buildings[i][j] == 2) {
-                index = 193;
-            }
-
-            //sf::Sprite s = tiles[ index ];
-            //s.scale(sf::Vector2f(2.0f, 2.0f));
-            //s.setPosition(sf::Vector2f(i * tileSize, j * tileSize + 32));
-            //r.draw(s);
         }
     }
 
@@ -317,57 +300,163 @@ float lerp(float a, float b, float f) {
 
 void app::update() {
 
-    lerp_CameraX = lerp(lerp_CameraX, cameraX, 0.1);
-    lerp_CameraY = lerp(lerp_CameraY, cameraY, 0.1);
+    lerp_CameraX = lerp(lerp_CameraX, cameraX, 0.05);
+    lerp_CameraY = lerp(lerp_CameraY, cameraY, 0.05);
     
     view.reset(sf::FloatRect((int) lerp_CameraX, (int) lerp_CameraY, 1024, 768));
     //view.zoom(zoom);
 
-    terrain_layer.load("overworld_tileset_grass.png", sf::Vector2u(16, 16), world, worldX, worldY);
-    buildings_layer.load("overworld_tileset_grass.png", sf::Vector2u(16, 16), buildings, worldX, worldY);
+    terrain_layer.load("overworld_tileset_grass.png", sf::Vector2u(16, 16), terrain_tiles, worldX, worldY);
+    buildings_layer.load("overworld_tileset_grass.png", sf::Vector2u(16, 16), buildings_tiles, worldX, worldY);
 
     //terrain_layer.scale(sf::Vector2f(2.0f, 2.0f));
     //buildings_layer.scale(sf::Vector2f(2.0f, 2.0f));
 }
 
-void app::onMouseMoved(sf::Event& event) {
+void updateBuildingsMasks() {
+
+    int mask;
+    int index;
+
+    for (int j = 0; j < worldY; j++) {
+        for (int i = 0; i < worldY; i++) {
+
+            index = 8; // default = transparant
+        
+            // 1 = zandweg
+            if (buildings[i][j] == 1) {
+
+                mask = getTileMask(buildings, i, j, 1);
+                mask += getTileMask(buildings, i, j, 2);
+
+                index = 7;
+                
+                // uiteindes
+                if ((mask & 2) && !(mask & 8) && !(mask & 16) && !(mask & 64 )) index = 40;
+                if (!(mask & 2) && (mask & 8) && !(mask & 16) && !(mask & 64 )) index = 7;
+                if (!(mask & 2) && !(mask & 8) && (mask & 16) && !(mask & 64 )) index = 5;
+                if (!(mask & 2) && !(mask & 8) && !(mask & 16) && (mask & 64 )) index = 16;
 
 
-/*
-    if (event.key.code ==  sf::Keyboard::Up) {
-        cameraY -= 10;
-        if (cameraY < 0) cameraY = 0;
+                // rechtdoor zonder uiteinde
+                if ((mask & 8) && (mask & 16)) index = 6;
+                if ((mask & 2) && (mask & 64)) index = 28;
+
+                // bochtjes
+                if ((mask & 2) && (mask & 8) && !(mask & 16) && !(mask & 64 )) index = 43;
+                if ((mask & 2) && !(mask & 8) && (mask & 16) && !(mask & 64 )) index = 41;
+                if (!(mask & 2) && (mask & 8) && !(mask & 16) && (mask & 64 )) index = 19;
+                if (!(mask & 2) && !(mask & 8) && (mask & 16) && (mask & 64 )) index = 17;
+
+                // driesprong
+                if ((mask & 2) && (mask & 8) && (mask & 16) && !(mask & 64 )) index = 42;
+                if ((mask & 2) && (mask & 8) && !(mask & 16) && (mask & 64 )) index = 31;
+                if ((mask & 2) && !(mask & 8) && (mask & 16) && (mask & 64 )) index = 29;
+                if (!(mask & 2) && (mask & 8) && (mask & 16) && (mask & 64 )) index = 18;
+                
+                // vol kruispunt
+
+                if ((mask & 2) && (mask & 8) && (mask & 16) && (mask & 64 )) index = 30;
+
+                buildings_tiles[i][j] = index;
+
+            }
+
+            // 2 = stenen weg
+            if (buildings[i][j] == 2) {
+
+                //mask = getTileMask(buildings, i, j, 1);
+                mask = getTileMask(buildings, i, j, 2);
+
+                index = 11;
+
+                // voor stenen paden telkens 4 erbij dus dit kan veel simpeler
+                
+                // uiteindes
+                if ((mask & 2) && !(mask & 8) && !(mask & 16) && !(mask & 64 )) index = 44;
+                if (!(mask & 2) && (mask & 8) && !(mask & 16) && !(mask & 64 )) index = 11;
+                if (!(mask & 2) && !(mask & 8) && (mask & 16) && !(mask & 64 )) index = 9;
+                if (!(mask & 2) && !(mask & 8) && !(mask & 16) && (mask & 64 )) index = 20;
+
+
+                // rechtdoor zonder uiteinde
+                if ((mask & 8) && (mask & 16)) index = 10;
+                if ((mask & 2) && (mask & 64)) index = 32;
+
+                // bochtjes
+                if ((mask & 2) && (mask & 8) && !(mask & 16) && !(mask & 64 )) index = 47;
+                if ((mask & 2) && !(mask & 8) && (mask & 16) && !(mask & 64 )) index = 45;
+                if (!(mask & 2) && (mask & 8) && !(mask & 16) && (mask & 64 )) index = 23;
+                if (!(mask & 2) && !(mask & 8) && (mask & 16) && (mask & 64 )) index = 21;
+
+                // driesprong
+                if ((mask & 2) && (mask & 8) && (mask & 16) && !(mask & 64 )) index = 46;
+                if ((mask & 2) && (mask & 8) && !(mask & 16) && (mask & 64 )) index = 35;
+                if ((mask & 2) && !(mask & 8) && (mask & 16) && (mask & 64 )) index = 33;
+                if (!(mask & 2) && (mask & 8) && (mask & 16) && (mask & 64 )) index = 22;
+                
+                // vol kruispunt
+
+                if ((mask & 2) && (mask & 8) && (mask & 16) && (mask & 64 )) index = 30;
+
+                buildings_tiles[i][j] = index;
+            }
+
+        }
     }
 
-    if (event.key.code ==  sf::Keyboard::Down) {
-        cameraY += 10;
-        if (cameraY > 400) cameraY = 400;
-    }
-*/
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-        cameraX += -(event.mouseMove.x - oldMouseX);
-        cameraY += -(event.mouseMove.y - oldMouseY);
+}
+
+void buildBuilding() {
+
+    int i = (oldMouseX + cameraX) / tileSize;
+    int j = (oldMouseY + cameraY) / tileSize;
+
+    printf("x: %i, y: %i\n", i, j);
+    switch(currentBuild) {
+        case 1: buildings[i][j] = 192; break;
+        case 2: buildings[i][j] = 1; break;
+        case 3: if (buildings[i][j] == 1) buildings[i][j] = 2; break;
+        case 4: 
+            printf("de kerk");
+            for (int x = 0; x < 3; x++) {
+                for (int y = 0; y < 4; y++) {
+                    buildings[i + x][j + y] = 4;
+                    buildings_tiles[i + x][j + y] = 148 + x + y * 12;
+                }
+            }
+            break;
+
+        case 5: 
+            printf("dorp");
+            for (int x = 0; x < 4; x++) {
+                for (int y = 0; y < 4; y++) {
+                    buildings[i + x][j + y] = 5;
+                    buildings_tiles[i + x][j + y] = 144 + x + y * 12;
+                }
+            }
+            break;
+
+        case 6: 
+            printf("toren");
+            for (int x = 0; x < 2; x++) {
+                for (int y = 0; y < 4; y++) {
+                    buildings[i + x][j + y] = 6;
+                    buildings_tiles[i + x][j + y] = 151 + x + y * 12;
+                }
+            }
+            break;
     }
 
-    oldMouseY = event.mouseMove.y;
-    oldMouseX = event.mouseMove.x;
-
-    checkCameraBounds();
+    updateBuildingsMasks();
 
 }
 
 void app::onMouseButtonPressed(sf::Event& event) {
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-
-        int i = (oldMouseX + cameraX) / tileSize;
-        int j = (oldMouseY + cameraY) / tileSize;
-
-        printf("x: %i, y: %i\n", i, j);
-        buildings[i][j] = 192;
-
+        buildBuilding();
     }
-    //app::d//rawWorld();
 }
 
 void app::onMouseWheelScrolled(sf::Event& event) {
@@ -391,7 +480,49 @@ void app::onKeyPressed(sf::Event& event) {
         case sf::Keyboard::W: cameraY -= 100; break;
         case sf::Keyboard::S: cameraY += 100; break;
 
+        case sf::Keyboard::Num0: currentBuild = 0; break;
+        case sf::Keyboard::Num1: currentBuild = 1; break;
+        case sf::Keyboard::Num2: currentBuild = 2; break;
+        case sf::Keyboard::Num3: currentBuild = 3; break;
+        case sf::Keyboard::Num4: currentBuild = 4; break;
+        case sf::Keyboard::Num5: currentBuild = 5; break;
+        case sf::Keyboard::Num6: currentBuild = 6; break;
+        case sf::Keyboard::Num7: currentBuild = 7; break;
+        case sf::Keyboard::Num8: currentBuild = 8; break;
+        
+        case sf::Keyboard::Tab: debugViewOn = !debugViewOn; break;
     }
+
+    checkCameraBounds();
+
+}
+
+
+void app::onMouseMoved(sf::Event& event) {
+
+
+/*
+    if (event.key.code ==  sf::Keyboard::Up) {
+        cameraY -= 10;
+        if (cameraY < 0) cameraY = 0;
+    }
+
+    if (event.key.code ==  sf::Keyboard::Down) {
+        cameraY += 10;
+        if (cameraY > 400) cameraY = 400;
+    }
+*/
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+        cameraX += -(event.mouseMove.x - oldMouseX);
+        cameraY += -(event.mouseMove.y - oldMouseY);
+    }
+
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        buildBuilding();
+    }
+
+    oldMouseY = event.mouseMove.y;
+    oldMouseX = event.mouseMove.x;
 
     checkCameraBounds();
 
@@ -408,5 +539,7 @@ void app::draw() {
     window->draw(terrain_layer);
     window->draw(buildings_layer);
 
-    //debugView();
+    if (debugViewOn) {
+        debugView();
+    }
 }
