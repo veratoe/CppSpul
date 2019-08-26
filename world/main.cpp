@@ -11,6 +11,8 @@ int main() {
 
     sf::RenderWindow window(sf::VideoMode(1024, 768), "SFML");
 
+    window.setFramerateLimit(60);
+
     app::window = &window;
     app::initialize();
 

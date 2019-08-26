@@ -4,6 +4,7 @@
 #include "app.h"
 #include "noise.h"
 #include "tilemap.cpp"
+#include "unit.cpp"
 
 sf::Sprite s;
 sf::Texture t;
@@ -17,6 +18,9 @@ std::vector< std::vector<int> > buildings;
 
 std::vector< std::vector<int> > terrain_tiles; // de tilemap codes
 std::vector< std::vector<int> > buildings_tiles; // de tilemap codes
+
+
+std::vector< Unit > units;
 
 sf::Font font;
 
@@ -42,6 +46,7 @@ float zoom = 1.0f;
 TileMap terrain_layer, buildings_layer;
 
 bool debugViewOn = false;
+bool buildingBuildings = true;
 
 int getTileMask(const std::vector< std::vector<int> >& array,  int a, int b, int tile) {
 
@@ -268,6 +273,33 @@ void app::initialize() {
     terrain_layer.scale(sf::Vector2f(2.0f, 2.0f));
     buildings_layer.scale(sf::Vector2f(2.0f, 2.0f));
 
+
+}
+
+void createUnit() {
+
+    Unit::UnitType type;
+
+    switch(currentBuild) {
+
+            case 0: type = Unit::UnitType::PEASANT; break;
+            case 1: type = Unit::UnitType::PEASANT2; break;
+            case 2: type = Unit::UnitType::BISHOP; break;
+            case 3: type = Unit::UnitType::COUNSELOR; break;
+            case 4: type = Unit::UnitType::MONK; break;
+            case 5: type = Unit::UnitType::BANDIT; break;
+    }
+
+    int i = (oldMouseX + cameraX) / tileSize;
+    int j = (oldMouseY + cameraY) / tileSize;
+
+    Unit* u = new Unit(type);
+    u->load();
+    u->setPosition(sf::Vector2f(i * tileSize, j * tileSize));
+    u->setScale(sf::Vector2f(2.f, 2.f));
+
+    units.push_back(*u);
+
 }
 
 void app::debugView() {
@@ -292,6 +324,17 @@ void app::debugView() {
         }
     }
 
+    window->setView(window->getDefaultView());
+    
+    text.setCharacterSize(12);
+    text.setString(buildingBuildings ? "Building buildings" : "Building units");
+    text.setFillColor(sf::Color({ 0, 240, 0, 255 }));
+    text.setPosition(sf::Vector2f(0, 0));
+    window->draw(text);
+
+    window->setView(view);
+
+
 }
 
 float lerp(float a, float b, float f) {
@@ -311,6 +354,10 @@ void app::update() {
 
     //terrain_layer.scale(sf::Vector2f(2.0f, 2.0f));
     //buildings_layer.scale(sf::Vector2f(2.0f, 2.0f));
+
+    for (auto& unit : units) {
+            unit.update();
+    }
 }
 
 void updateBuildingsMasks() {
@@ -407,7 +454,7 @@ void updateBuildingsMasks() {
 
 }
 
-void buildBuilding() {
+void createBuilding() {
 
     int i = (oldMouseX + cameraX) / tileSize;
     int j = (oldMouseY + cameraY) / tileSize;
@@ -455,7 +502,9 @@ void buildBuilding() {
 void app::onMouseButtonPressed(sf::Event& event) {
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        buildBuilding();
+        if (buildingBuildings)
+            createBuilding();
+            else createUnit();
     }
 }
 
@@ -491,6 +540,9 @@ void app::onKeyPressed(sf::Event& event) {
         case sf::Keyboard::Num8: currentBuild = 8; break;
         
         case sf::Keyboard::Tab: debugViewOn = !debugViewOn; break;
+
+        case sf::Keyboard::F1: buildingBuildings = true; break;
+        case sf::Keyboard::F2: buildingBuildings = false; break;
     }
 
     checkCameraBounds();
@@ -518,7 +570,7 @@ void app::onMouseMoved(sf::Event& event) {
     }
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        buildBuilding();
+        createBuilding();
     }
 
     oldMouseY = event.mouseMove.y;
@@ -541,5 +593,9 @@ void app::draw() {
 
     if (debugViewOn) {
         debugView();
+    }
+
+    for (auto& unit : units) {
+        window->draw(unit);
     }
 }
