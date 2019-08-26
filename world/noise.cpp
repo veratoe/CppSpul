@@ -22,10 +22,9 @@ std::vector<std::vector<float> > Noise::generate(int a, int b) {
     float max = 0.0f;
     float min = 1.0f;
 
-    srand(time(0));
+    srand(time(0) + PRNG());
 
     std::vector<std::vector<float> > array(a, std::vector<float>(b, 0));
-    //std::vector<std::vector<int> > array;
     std::vector< int > values(a * b);
 
     for (int q = 0; q < (a * b); q++) {
@@ -34,11 +33,7 @@ std::vector<std::vector<float> > Noise::generate(int a, int b) {
 
     for (int j = 0; j < b; j++) {
         for (int i = 0; i < a; i++) {
-        //std::vector<int> row;
-            //row.push_back(values[ (i + j) % 256 ]);
-
             array[i][j] = 0.0f;
-
             int z = 64;
             float amp = 2;
             float sum_amp = 0;
@@ -65,15 +60,10 @@ std::vector<std::vector<float> > Noise::generate(int a, int b) {
 
     }
     
-    printf("%f, %f", min, max);
-    printf("\n");
-
     for (int j = 0; j < b; j++) {
         for (int i = 0; i < a; i++) {
             array[i][j] -= min;
             array[i][j] /= (max - min);
-
-            array[i][j] = (array[i][j] < 0.25 || array[i][j] > 0.75) ? 1.0 : 0.0;
         }
     }
 
