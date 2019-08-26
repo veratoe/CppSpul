@@ -1,3 +1,0 @@
-/home/wubmans/Documents/cpp_spul/world/CMakeFiles/rebuild_cache.dir
-/home/wubmans/Documents/cpp_spul/world/CMakeFiles/edit_cache.dir
-/home/wubmans/Documents/cpp_spul/world/CMakeFiles/main.dir
