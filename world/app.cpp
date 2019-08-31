@@ -4,7 +4,7 @@
 #include "app.h"
 #include "noise.h"
 #include "tilemap.cpp"
-#include "unit.cpp"
+#include "unit.h"
 
 sf::Sprite s;
 sf::Texture t;
