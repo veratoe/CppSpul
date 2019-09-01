@@ -18,6 +18,10 @@ class Unit : public sf::Drawable, public sf::Transformable  {
 
         void load();
 
+        void setDestination(const sf::Vector2i& destination);
+
+        sf::Vector2i i_position;
+
     private:
 
         UnitType m_type;
@@ -28,6 +32,8 @@ class Unit : public sf::Drawable, public sf::Transformable  {
 //        sf::Vector2f f_position;
 //        sf::Vector2f size;
         sf::Vector2f m_direction;
+
+        sf::Vector2i destination;
 //
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const;

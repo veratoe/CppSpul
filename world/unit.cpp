@@ -1,13 +1,13 @@
 #include <SFML/Graphics.hpp>
 #include "unit.h"
+#include "pathfinding.h"
+#include "app.h"
 
 
-
-//sf::Vector2f size; 
-//sf::Vector2f position;
 sf::Vector2f f_position;
 
-//sf::VertexArray m_vertices;
+sf::Vector2i destination;
+
 sf::Texture m_unitTexture;
 
 Unit::UnitType m_type;
@@ -88,23 +88,71 @@ void Unit::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
 void Unit::update() {
 
-    float speed = 0.5f;
+    std::vector< std::vector<int> > onzin;
 
-    sf::Vector2f position = getPosition();
+    std::vector< Pathfinding::Node > nodes;
 
-    if (rand() % 10000 > 9950)  {
-        speed = (rand() % 10 ) / 10.0f;
-        printf("%f", speed);
-        switch(rand() % 4) {
-            case 0: m_direction = UP; break;
-            case 1: m_direction = DOWN; break;
-            case 2: m_direction = LEFT; break;
-            case 3: m_direction = RIGHT; break;
-        }
+    std::vector< int > values = { 1 };
+
+    if (i_position.x != destination.x || i_position.y != destination.y) {
+        nodes = Pathfinding::find(
+            Pathfinding::Node{ x: i_position.x, y: i_position.y, f: 0, g: 0, h: 0, isClosed: false }, 
+            Pathfinding::Node{ x: destination.x, y: destination.y, f: 0, g:0, h: 0, isClosed: false }, onzin,  values);
+    } else {
+        setDestination(sf::Vector2i( (rand() % 10) - 5 + i_position.x , (rand() % 10) - 5 + i_position.y));
     }
 
-    // poppetje mooi bijdraaien;
-    setScale(sf::Vector2f(m_direction == RIGHT ? 2.0 : -2.0, 2.0));
-    setPosition(position + speed * m_direction);
+    if (nodes.size() == 0) {
+        return;
+    }
+
+    if (nodes[0].x == i_position.x) {
+        m_direction = nodes[0].y > i_position.y ? DOWN : UP;
+    } else {
+        m_direction = nodes[0].x > i_position.x ? RIGHT : LEFT;
+    }
+
+    sf::Vector2f position = getPosition();
+    setPosition(position + 0.25f * m_direction);
+
+    sf::Text text;
+    text.setFont(app::font);
+    text.setCharacterSize(20);
+
+    char b[50];
+    sprintf(b, "position (float): %.2f, %.2f", position.x, position.y);
+    text.setString(b);
+    text.setPosition(sf::Vector2f(0, 40));
+    app::debugOverlay.draw(text);
+
+    sprintf(b, "position (rounded): %i, %i", (int) (position.x / 32), (int) (position.y / 32));
+    text.setString(b);
+    text.setPosition(sf::Vector2f(0, 60));
+    app::debugOverlay.draw(text);
+
+    sprintf(b, "position (int): %i, %i", i_position.x, i_position.y);
+    text.setString(b);
+    text.setPosition(sf::Vector2f(0, 80));
+    app::debugOverlay.draw(text);
+
+    sprintf(b, "Doel: %i, %i", destination.x, destination.y);
+    text.setString(b);
+    text.setPosition(sf::Vector2f(0, 100));
+    app::debugOverlay.draw(text);
+
+    sprintf(b, "nodes[0]: %i, %i", nodes[0].x, nodes[0].y);
+    text.setString(b);
+    text.setPosition(sf::Vector2f(0, 120));
+    app::debugOverlay.draw(text);
+
+
+    i_position.x = (int) (position.x / 32); 
+    i_position.y = (int) (position.y / 32); 
+
+}
+
+void Unit::setDestination(const sf::Vector2i& destination) {
+
+    this->destination = destination;
 
 }

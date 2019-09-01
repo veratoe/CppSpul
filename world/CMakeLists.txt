@@ -2,9 +2,11 @@ project(wubbel)
 
 cmake_minimum_required(VERSION 3.0.0)
 
+set(CMAKE_CXX_STANDARD 11)
+
 file(GLOB sources *.cpp *.h)
 
-set (SFML "C:\\msys32\\spul\\SFML")
+set (SFML "/usr/local/include/SFML-2.5.1")
 
 link_directories(${SFML}/lib)
 add_executable(main ${sources})
