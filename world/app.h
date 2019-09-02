@@ -24,6 +24,8 @@ class app {
         static sf::Font font;
         static sf::View view;
 
+        static int frameCount;
+
     private:
 
         static void updateBuildingsMasks();

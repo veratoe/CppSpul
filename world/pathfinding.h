@@ -1,3 +1,6 @@
+#ifndef PATHFINDING_H
+#define PATHFINDING_H
+
 #include <SFML/Graphics.hpp>
 #include <vector>
 
@@ -26,3 +29,5 @@ class Pathfinding {
         static std::vector< Node > find(Node position, Node destination, std::vector< std::vector<int> >& grid, std::vector< int > passableValues);
 
 };
+
+#endif // PATHFINDING_H

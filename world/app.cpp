@@ -11,6 +11,8 @@ sf::Sprite s;
 sf::Texture t;
 sf::View app::view;
 
+int app::frameCount;
+
 // https://www.redblobgames.com/maps/terrain-from-noise/
 std::vector< std::vector<float> > elevation;
 std::vector< std::vector<float> > humidity;
@@ -299,24 +301,22 @@ void createUnit() {
 
     switch(currentBuild) {
 
-            case 0: type = Unit::UnitType::PEASANT; break;
-            case 1: type = Unit::UnitType::PEASANT2; break;
+            case 1: type = Unit::UnitType::PEASANT; break;
             case 2: type = Unit::UnitType::BISHOP; break;
-            case 3: type = Unit::UnitType::COUNSELOR; break;
-            case 4: type = Unit::UnitType::MONK; break;
-            case 5: type = Unit::UnitType::BANDIT; break;
+            //case 1: type = Unit::UnitType::PEASANT2; break;
+            //case 3: type = Unit::UnitType::COUNSELOR; break;
+            //case 4: type = Unit::UnitType::MONK; break;
+            //case 5: type = Unit::UnitType::BANDIT; break;
     }
 
     int i = (oldMouseX + cameraX) / tileSize;
     int j = (oldMouseY + cameraY) / tileSize;
 
-    Unit* u = new Unit(type);
-    u->load();
-    u->i_position = sf::Vector2i(i, j);
-    u->setPosition(sf::Vector2f(i * tileSize, j * tileSize));
-    u->setScale(sf::Vector2f(2.f, 2.f));
+    Unit u(type);
+    u.m_gridPosition = sf::Vector2i(i, j);
+    u.m_position = sf::Vector2f(i * tileSize, j * tileSize);
 
-    units.push_back(*u);
+    units.push_back(u);
 
 }
 
@@ -329,6 +329,9 @@ float lerp(float a, float b, float f) {
 }
 
 void app::update() {
+
+    frameCount++;
+    //frameCount %= 60;
 
     lerp_CameraX = lerp(lerp_CameraX, cameraX, 0.05);
     lerp_CameraY = lerp(lerp_CameraY, cameraY, 0.05);
@@ -442,7 +445,7 @@ void app::createBuilding() {
     int i = (oldMouseX + cameraX) / tileSize;
     int j = (oldMouseY + cameraY) / tileSize;
 
-    printf("x: %i, y: %i\n", i, j);
+    //printf("x: %i, y: %i\n", i, j);
     switch(currentBuild) {
         case 1: buildings[i][j] = 192; break;
         case 2: buildings[i][j] = 1; break;
@@ -481,6 +484,9 @@ void app::createBuilding() {
 
 void app::onMouseButtonPressed(sf::Event& event) {
 
+    int i = (oldMouseX + cameraX) / tileSize;
+    int j = (oldMouseY + cameraY) / tileSize;
+
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
         /*
         if (buildingBuildings)
@@ -488,13 +494,32 @@ void app::onMouseButtonPressed(sf::Event& event) {
             else createUnit();
             */
 
-        int i = (oldMouseX + cameraX) / tileSize;
-        int j = (oldMouseY + cameraY) / tileSize;
+        bool clickedOnUnit = false;
+
+        printf("linkermuis!: %i, %i\n", i, j);
 
         for (auto& unit : units) {
-            unit.setDestination(sf::Vector2i(i, j));
+            unit.isSelected = false;
         }
 
+        for (auto& unit : units) {
+            printf("unit op: %i, %i\n", unit.m_gridPosition.x, unit.m_gridPosition.y);
+            if (unit.m_gridPosition.x == i && unit.m_gridPosition.y == j) {
+                unit.isSelected = true;
+            }
+        }
+
+    } 
+    
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+
+
+        for (auto& unit : units) {
+
+            if (unit.isSelected) {
+                unit.setDestination(sf::Vector2i(i, j));
+            }
+        }
     }
 }
 
@@ -565,7 +590,7 @@ void app::onMouseMoved(sf::Event& event) {
     }
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        createBuilding();
+        //createBuilding();
     }
 
     oldMouseY = event.mouseMove.y;
@@ -610,7 +635,7 @@ void app::draw() {
 
     }
 
-    for (const auto& unit : units) {
-        window->draw(unit);
+    for (auto& unit : units) {
+        unit.draw(*window);
     }
 }

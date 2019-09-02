@@ -1,9 +1,14 @@
+#include "pathfinding.h"
 
-
-
-class Unit : public sf::Drawable, public sf::Transformable  {
+class Unit {
 
     public:
+
+        // static spul voor textures?
+        static bool hasLoaded;
+
+
+
 
         static const sf::Vector2f UP;
         static const sf::Vector2f DOWN;
@@ -12,32 +17,40 @@ class Unit : public sf::Drawable, public sf::Transformable  {
 
         enum UnitType { PEASANT, PEASANT2, BISHOP, COUNSELOR, MONK, BANDIT };
 
-        Unit(UnitType t) : m_type(t) {};
+
+        // membersszzz
+
+        Unit(Unit::UnitType m_type);
 
         void update();
-
-        void load();
-
         void setDestination(sf::Vector2i destination);
+        void draw(sf::RenderTarget& target);
 
-        sf::Vector2i i_position;
+        sf::Vector2i m_gridPosition; // positie in termen van grid
+        sf::Vector2f m_position; // positie in pixels
+
+        bool isSelected;
+
 
     private:
 
         UnitType m_type;
 
-        sf::VertexArray m_vertices;
-//        sf::Texture m_unitTexture;
-//
-//        sf::Vector2f f_position;
-//        sf::Vector2f size;
         sf::Vector2f m_direction;
+        sf::Vector2f m_textureSize; 
+        sf::Vector2f m_texturePosition;
+        sf::Vector2i m_destination;
 
-        sf::Vector2i destination;
-//
+        sf::Texture s_unitTexture;
+        sf::Sprite m_sprite;
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const;
         void drawDebug();
 
+        bool hasNext;
+        bool hasDestination;
+
+        std::vector< Pathfinding::Node > m_nodes;
+        Pathfinding::Node m_next;
 };
 

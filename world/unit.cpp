@@ -4,76 +4,51 @@
 #include "pathfinding.h"
 #include "app.h"
 
+bool Unit::hasLoaded;
 
-sf::Vector2f f_position;
+Unit::Unit(Unit::UnitType type) {
 
-std::vector< Pathfinding::Node > nodes;
+    m_type = type;
 
-Pathfinding::Node next;
-bool hasNext;
-bool hasDestination;
-
-sf::Vector2i destination;
-
-sf::Texture m_unitTexture;
-
-Unit::UnitType m_type;
-
-void Unit::load() {        
-
-    sf::Vector2f position;
-    sf::Vector2f size; 
-
-    m_unitTexture.loadFromFile("characters.png");
 
     switch (m_type) {
         case Unit::BISHOP: 
-            position = sf::Vector2f(97, 5);
-            size = sf::Vector2f(13, 27);
+            s_unitTexture.loadFromFile("bishop.png");
+            m_texturePosition = sf::Vector2f(0, 1);
+            m_textureSize = sf::Vector2f(11, 31);
             break;
 
         case Unit::PEASANT: 
-            position = sf::Vector2f(0, 13);
-            size = sf::Vector2f(15, 19);
+            s_unitTexture.loadFromFile("peasant.png");
+            m_texturePosition = sf::Vector2f(0, 11);
+            m_textureSize = sf::Vector2f(15, 21);
             break;
 
         case Unit::PEASANT2: 
-            position = sf::Vector2f(16, 15);
-            size = sf::Vector2f(17, 20);
+            m_texturePosition = sf::Vector2f(16, 15);
+            m_textureSize = sf::Vector2f(17, 20);
             break;
     
         case Unit::COUNSELOR: 
-            position = sf::Vector2f(17, 47);
-            size = sf::Vector2f(12, 17);
+            m_texturePosition = sf::Vector2f(17, 47);
+            m_textureSize = sf::Vector2f(12, 17);
             break;
 
         case Unit::MONK: 
-            position = sf::Vector2f(49, 47);
-            size = sf::Vector2f(15, 16);
+            m_texturePosition = sf::Vector2f(49, 47);
+            m_textureSize = sf::Vector2f(15, 16);
             break;
 
         case Unit::BANDIT: 
-            position = sf::Vector2f(67, 79);
-            size = sf::Vector2f(10, 17);
+            m_texturePosition = sf::Vector2f(67, 79);
+            m_textureSize = sf::Vector2f(10, 17);
             break;
     }
+    
+    //m_sprite.setTexture(s_unitTexture);
+    //m_sprite.setTextureRect(sf::IntRect(m_texturePosition.x, m_texturePosition.y, m_textureSize.x, m_textureSize.y));
 
-    m_vertices.setPrimitiveType(sf::Quads);
-    m_vertices.resize(4);
-
-    m_vertices[0].position = sf::Vector2f(0, 0);
-    m_vertices[1].position = sf::Vector2f(size.x, 0) ;
-    m_vertices[2].position = sf::Vector2f(size.x, size.y);
-    m_vertices[3].position = sf::Vector2f(0, size.y);
-
-    // define its 4 texture coordinates
-    m_vertices[0].texCoords = position;
-    m_vertices[1].texCoords = sf::Vector2f(position.x + size.x, position.y);
-    m_vertices[2].texCoords = sf::Vector2f(position.x + size.x, position.y + size.y);
-    m_vertices[3].texCoords = sf::Vector2f(position.x, position.y + size.y);
-
-
-    setOrigin(-size.x, 0);
+    m_sprite.setScale(2.f, 2.f);
 
 }
 
@@ -84,44 +59,40 @@ const sf::Vector2f Unit::DOWN(0.0f, 1.0f);
 const sf::Vector2f Unit::LEFT(-1.0f, 0.0f);
 const sf::Vector2f Unit::RIGHT(1.0f, 0.0f);
 
-void Unit::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    // apply the transform
-    states.transform *= getTransform();
-
-    // apply the tileset texture
-    states.texture = &m_unitTexture;
-
-    // draw the vertex array
-    target.draw(m_vertices, states);
-}
-
 void Unit::drawDebug() {
 
     // ---- zooi tekenen voor debugView ---------------------
 
-    sf::Vector2f position = getPosition();
     sf::RectangleShape r(sf::Vector2f(32, 32));
 
-    r.setPosition(i_position.x * 32, i_position.y * 32);
+    // --- Position (grid)
+    /*
+    r.setPosition(m_gridPosition.x * 32, m_gridPosition.y * 32);
     r.setFillColor(sf::Color({ 0, 0, 255, 200 }));
     app::debugLayer.draw(r);
+    */
 
-    // WAAR STA IK ECHT
-    r.setPosition(position.x, position.y);
-    r.setFillColor(sf::Color({ 255, 255, 0, 200 }));
+    // --- Position ---
+    //r.setPosition(m_position.x, m_position.y);
+    //r.setFillColor(sf::Color({ 255, 255, 0, 200 }));
+    //app::debugLayer.draw(r);
+
+    // --- Next ---
+    /*
+    r.setPosition(m_next.x * 32, m_next.y * 32);
+    r.setFillColor(sf::Color({ 0, 0, 0, 0 }));
+    r.setOutlineColor(sf::Color({ 0, 255, 0, 255 }));
+    r.setOutlineThickness(2.f);
     app::debugLayer.draw(r);
 
-    // WAT IS HET DOEL
-    r.setPosition(next.x * 32, next.y * 32);
-    r.setFillColor(sf::Color({ 0, 255, 0, 200 }));
-    app::debugLayer.draw(r);
+    r.setOutlineThickness(0);
 
     sf::Text text;
     text.setFont(app::font);
     text.setCharacterSize(15);
 
     char b[50];
-    sprintf(b, "position (int): %i, %i", i_position.x, i_position.y);
+    sprintf(b, "position (int): %i, %i", m_gridPosition.x, m_gridPosition.y);
     text.setString(b);
     text.setPosition(sf::Vector2f(0, 30));
     app::debugOverlay.draw(text);
@@ -131,7 +102,7 @@ void Unit::drawDebug() {
     text.setPosition(sf::Vector2f(0, 50));
     app::debugOverlay.draw(text);
 
-    sprintf(b, "position (f): %.0f, %.0f, ", position.x, position.y);
+    sprintf(b, "position (f): %.0f, %.0f, ", m_position.x, m_position.y);
     text.setString(b);
     text.setPosition(sf::Vector2f(0, 70));
     app::debugOverlay.draw(text);
@@ -151,59 +122,52 @@ void Unit::drawDebug() {
     r.setFillColor(sf::Color({ 0, 100, 250, 130 }));
     app::debugLayer.draw(r);
 
+*/
 }
 
 void Unit::update() {
-    drawDebug();
+    //drawDebug();
 
     int tileSize = 32;
-
-    sf::Vector2f position = getPosition();
 
     if (!hasDestination) {
         return;
     }
 
-    if (position.x == destination.x * tileSize && position.y == destination.y * tileSize) {
+    if (m_position.x == m_destination.x * tileSize && m_position.y == m_destination.y * tileSize) {
         hasDestination = false;
         return;
     }
 
-    if (position.x == next.x * tileSize && position.y == next.y * tileSize) {
+    if (m_position.x == m_next.x * tileSize && m_position.y == m_next.y * tileSize) {
         hasNext = false;
     }
 
 
-    if (!hasNext && nodes.size() > 0) {
-        next = nodes.back();
-        nodes.pop_back();
+    if (!hasNext && m_nodes.size() > 0) {
+        m_next = m_nodes.back();
+        m_nodes.pop_back();
         hasNext = true;
     }
 
-    if (next.x * 32 != position.x) {
-        m_direction = next.x > i_position.x ? RIGHT : LEFT;
+    if (m_next.x * 32 != m_position.x) {
+        m_direction = m_next.x > m_gridPosition.x ? RIGHT : LEFT;
     }
 
-    if (next.y * 32 != position.y) {
-        m_direction = next.y > i_position.y ? DOWN : UP;
+    if (m_next.y * 32 != m_position.y) {
+        m_direction = m_next.y > m_gridPosition.y ? DOWN : UP;
     }
 
-    if (m_direction == LEFT) {
-        setScale(sf::Vector2f(-1.f, 1.f));
-    } else {
-        setScale(sf::Vector2f(1.f, 1.f));
-    }
+    m_gridPosition.x = (int) floor(m_position.x / 32);
+    m_gridPosition.y = (int) floor(m_position.y / 32);
 
-    i_position.x = (int) floor(position.x / 32);
-    i_position.y = (int) floor(position.y / 32);
-
-
-    setPosition(position +  m_direction);
+    m_position += m_direction;
 }
 
 void Unit::setDestination(sf::Vector2i destination) {
+    printf("setting destination\n");
 
-    this->destination = destination;
+    m_destination = destination;
 
     hasDestination = true;
 
@@ -211,13 +175,51 @@ void Unit::setDestination(sf::Vector2i destination) {
 
     std::vector< int > values = { 1, 3 };
 
-    nodes = Pathfinding::find(
-            Pathfinding::Node{ x: i_position.x, y: i_position.y, f: 0, g: 0, h: 0, status: 0, fromX: 0, fromY: 0 }, 
+    m_nodes = Pathfinding::find(
+            Pathfinding::Node{ x: m_gridPosition.x, y: m_gridPosition.y, f: 0, g: 0, h: 0, status: 0, fromX: 0, fromY: 0 }, 
             Pathfinding::Node{ x: destination.x, y: destination.y, f: 0, g:0, h: 0, status: 0, fromX: 0, fromY: 0 },
             onzin, values);
 
-    if (nodes.size() > 0) {
+    if (m_nodes.size() > 0) {
         hasDestination = true;
-        next = nodes.back();
+        m_next = m_nodes.back();
     }
+}
+
+void Unit::draw(sf::RenderTarget& target) {
+    int tileSize = 32;
+    m_sprite.setPosition(m_position + sf::Vector2f(0, tileSize  - 2.f * m_textureSize.y  ));
+    m_sprite.setTexture(s_unitTexture);
+
+    int frameOffset = 0;
+    if (hasDestination) {
+        frameOffset = ((app::frameCount / 10) % 4 ) * 32;
+    }
+
+    if (isSelected) {
+        sf::CircleShape circle(20);
+        circle.setFillColor({ 0, 0, 0, 100 });
+        circle.setScale(1.f, 0.4f);
+        circle.setPosition(m_position.x - 8, m_position.y + 20);
+        target.draw(circle);
+    } else {
+        sf::RectangleShape rect(sf::Vector2f(tileSize, tileSize));
+        rect.setFillColor({ 0, 0, 0 ,0 });
+        rect.setOutlineColor({ 255, 255, 0, 50 });
+        rect.setOutlineThickness(2.f);
+        rect.setPosition(m_gridPosition.x * tileSize, m_gridPosition.y * tileSize);
+        target.draw(rect);
+    }
+
+    //printf("%i\n", app::frameCount);
+    //printf("%i\n",frameOffset);
+
+    if (m_direction == LEFT) {
+        m_sprite.setTextureRect(sf::IntRect(frameOffset + m_texturePosition.x + m_textureSize.x, m_texturePosition.y, - m_textureSize.x, m_textureSize.y));
+    } else {
+        m_sprite.setTextureRect(sf::IntRect(m_texturePosition.x + frameOffset, m_texturePosition.y, m_textureSize.x, m_textureSize.y));
+
+    }
+
+    target.draw(m_sprite);
 }
