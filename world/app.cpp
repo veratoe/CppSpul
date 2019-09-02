@@ -540,7 +540,7 @@ void app::onKeyPressed(sf::Event& event) {
     switch(event.key.code) {
 
         case sf::Keyboard::Z: 
-            createUnit();
+            buildingBuildings ? createBuilding() : createUnit();
             break;
 
         case sf::Keyboard::D: cameraX += 100; break;
