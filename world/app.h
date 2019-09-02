@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <vector>
 
 class app {
 
@@ -11,8 +12,21 @@ class app {
         static void onKeyPressed(sf::Event& event);
         static void onMouseButtonPressed(sf::Event& event);
 
-        static void debugView();
 
         static sf::RenderWindow* window;
 
+        static sf::RenderTexture debugLayer;
+        static sf::RenderTexture debugOverlay;
+
+        static std::vector< std::vector<int> > terrain;
+        static std::vector< std::vector<int> > buildings;
+
+        static sf::Font font;
+        static sf::View view;
+
+    private:
+
+        static void updateBuildingsMasks();
+        static void createBuilding();
+        static void drawDebugView();
 };

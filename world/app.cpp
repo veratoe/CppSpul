@@ -4,17 +4,18 @@
 #include "app.h"
 #include "noise.h"
 #include "tilemap.cpp"
-#include "unit.cpp"
+#include "unit.h"
+#include "pathfinding.h"
 
 sf::Sprite s;
 sf::Texture t;
-sf::View view;
+sf::View app::view;
 
 // https://www.redblobgames.com/maps/terrain-from-noise/
 std::vector< std::vector<float> > elevation;
 std::vector< std::vector<float> > humidity;
-std::vector< std::vector<int> > terrain;
-std::vector< std::vector<int> > buildings;
+std::vector< std::vector<int> > app::terrain;
+std::vector< std::vector<int> > app::buildings;
 
 std::vector< std::vector<int> > terrain_tiles; // de tilemap codes
 std::vector< std::vector<int> > buildings_tiles; // de tilemap codes
@@ -22,7 +23,7 @@ std::vector< std::vector<int> > buildings_tiles; // de tilemap codes
 
 std::vector< Unit > units;
 
-sf::Font font;
+sf::Font app::font;
 
 sf::Sprite tiles[12 * 21];
 
@@ -45,8 +46,11 @@ float zoom = 1.0f;
 
 TileMap terrain_layer, buildings_layer;
 
-bool debugViewOn = false;
-bool buildingBuildings = true;
+bool debugViewOn = true;
+bool buildingBuildings = false;
+
+sf::RenderTexture app::debugLayer;
+sf::RenderTexture app::debugOverlay;
 
 int getTileMask(const std::vector< std::vector<int> >& array,  int a, int b, int tile) {
 
@@ -92,7 +96,7 @@ void checkCameraBounds() {
 }
 
 void app::initialize() {
-    
+
     font.loadFromFile("vcr.ttf");
 
     elevation = Noise::generate(worldX, worldY);
@@ -109,7 +113,7 @@ void app::initialize() {
     
     for (int j = 0; j < worldX; j++) {
         for (int i = 0; i < worldY; i++) {
-            image.setPixel(i, j, sf::Color({ elevation[i][j] * 255 , 0 , 0 }));
+            image.setPixel(i, j, sf::Color({ (sf::Uint8) (elevation[i][j] * 255) , 0 , 0 }));
         }
     }
 
@@ -119,7 +123,7 @@ void app::initialize() {
 
     for (int j = 0; j < worldX; j++) {
         for (int i = 0; i < worldY; i++) {
-                image.setPixel(i, j, sf::Color({ humidity[i][j] * 255 , 0 , 0 }));
+                image.setPixel(i, j, sf::Color({ (sf::Uint8) (humidity[i][j] * 255.0f) , 0 , 0 }));
         }
     }
 
@@ -134,7 +138,6 @@ void app::initialize() {
     int done = false;
 
     while (!done) {
-        printf("looping...");
         done = true;
         for (int j = 0; j < worldY; j++) {
             for (int i = 0; i < worldX; i++) {
@@ -161,10 +164,21 @@ void app::initialize() {
 
     image.create(worldX, worldY);
 
+    /*
+    *
+    *           0 = zee
+    *           1 = gras = default?
+    *           2 = boom
+    *           3 = 
+    *           4 = rots?
+    *
+    */
+
     for (int j = 0; j < worldY; j++) {
         for (int i = 0; i < worldX; i++) {
             sf::RectangleShape s(sf::Vector2f(1, 1));
-            terrain[i][j] = 1;
+            terrain[i][j] = 1; // default = gras
+
             if (elevation[i][j] < 0.35) {
                 terrain[i][j] = 0;
                 image.setPixel(i, j, sf::Color({0, 50 , 255 }));
@@ -274,6 +288,9 @@ void app::initialize() {
     buildings_layer.scale(sf::Vector2f(2.0f, 2.0f));
 
 
+    debugLayer.create(3200, 3200);
+    debugOverlay.create(window->getSize().x, window->getSize().y);
+
 }
 
 void createUnit() {
@@ -295,45 +312,16 @@ void createUnit() {
 
     Unit* u = new Unit(type);
     u->load();
+    u->i_position = sf::Vector2i(i, j);
     u->setPosition(sf::Vector2f(i * tileSize, j * tileSize));
+    u->setDestination(sf::Vector2i(rand() % 50, rand() % 50));
     u->setScale(sf::Vector2f(2.f, 2.f));
 
     units.push_back(*u);
 
 }
 
-void app::debugView() {
-
-    sf::Text text;
-    text.setFont(font);
-    text.setCharacterSize(10);
-
-    for (int j = 0; j < worldY; j++) {
-        for (int i = 0; i < worldX; i++) {
-            int index = 0;
-
-            text.setString(std::to_string(terrain_tiles[i][j]));
-            text.setPosition(i * tileSize + 4, j * tileSize + 4);
-            text.setFillColor(sf::Color({ 255, 255, 255, 90 }));
-            window->draw(text);
-
-            text.setString(std::to_string(buildings_tiles[i][j]));
-            text.setPosition(i * tileSize + 4, j * tileSize + 16);
-            text.setFillColor(sf::Color({ 255, 0, 0, 90 }));
-            window->draw(text);
-        }
-    }
-
-    window->setView(window->getDefaultView());
-    
-    text.setCharacterSize(12);
-    text.setString(buildingBuildings ? "Building buildings" : "Building units");
-    text.setFillColor(sf::Color({ 0, 240, 0, 255 }));
-    text.setPosition(sf::Vector2f(0, 0));
-    window->draw(text);
-
-    window->setView(view);
-
+void app::drawDebugView() {
 
 }
 
@@ -347,20 +335,16 @@ void app::update() {
     lerp_CameraY = lerp(lerp_CameraY, cameraY, 0.05);
     
     view.reset(sf::FloatRect((int) lerp_CameraX, (int) lerp_CameraY, 1024, 768));
-    //view.zoom(zoom);
 
     terrain_layer.load("overworld_tileset_grass.png", sf::Vector2u(16, 16), terrain_tiles, worldX, worldY);
     buildings_layer.load("overworld_tileset_grass.png", sf::Vector2u(16, 16), buildings_tiles, worldX, worldY);
-
-    //terrain_layer.scale(sf::Vector2f(2.0f, 2.0f));
-    //buildings_layer.scale(sf::Vector2f(2.0f, 2.0f));
 
     for (auto& unit : units) {
             unit.update();
     }
 }
 
-void updateBuildingsMasks() {
+void app::updateBuildingsMasks() {
 
     int mask;
     int index;
@@ -454,7 +438,7 @@ void updateBuildingsMasks() {
 
 }
 
-void createBuilding() {
+void app::createBuilding() {
 
     int i = (oldMouseX + cameraX) / tileSize;
     int j = (oldMouseY + cameraY) / tileSize;
@@ -465,7 +449,6 @@ void createBuilding() {
         case 2: buildings[i][j] = 1; break;
         case 3: if (buildings[i][j] == 1) buildings[i][j] = 2; break;
         case 4: 
-            printf("de kerk");
             for (int x = 0; x < 3; x++) {
                 for (int y = 0; y < 4; y++) {
                     buildings[i + x][j + y] = 4;
@@ -475,7 +458,6 @@ void createBuilding() {
             break;
 
         case 5: 
-            printf("dorp");
             for (int x = 0; x < 4; x++) {
                 for (int y = 0; y < 4; y++) {
                     buildings[i + x][j + y] = 5;
@@ -485,7 +467,6 @@ void createBuilding() {
             break;
 
         case 6: 
-            printf("toren");
             for (int x = 0; x < 2; x++) {
                 for (int y = 0; y < 4; y++) {
                     buildings[i + x][j + y] = 6;
@@ -582,7 +563,6 @@ void app::onMouseMoved(sf::Event& event) {
 
 void app::draw() {
 
-
     //sf::Sprite s(r.getTexture());
     //s.setPosition(sf::Vector2f(0.0f, 0.0f));
     //s.scale(sf::Vector2f(4.0f, 4.0f));
@@ -591,8 +571,29 @@ void app::draw() {
     window->draw(terrain_layer);
     window->draw(buildings_layer);
 
+
     if (debugViewOn) {
-        debugView();
+    
+        debugLayer.display();
+        window->draw(sf::Sprite(debugLayer.getTexture()));
+
+        window->setView(window->getDefaultView());
+
+        debugOverlay.display();
+        window->draw(sf::Sprite(debugOverlay.getTexture()));
+
+        sf::Text text;
+        text.setFont(font);
+        text.setCharacterSize(20);
+        text.setString("DEBUG");
+        text.setPosition(sf::Vector2f(0, 0));
+        window->draw(text);
+
+        window->setView(view);
+
+        debugLayer.clear(sf::Color(0, 0, 0, 0));
+        debugOverlay.clear(sf::Color(0, 0, 0, 0));
+
     }
 
     for (auto& unit : units) {
