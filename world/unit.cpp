@@ -1,10 +1,17 @@
 #include <SFML/Graphics.hpp>
+#include <cmath>
 #include "unit.h"
 #include "pathfinding.h"
 #include "app.h"
 
 
 sf::Vector2f f_position;
+
+std::vector< Pathfinding::Node > nodes;
+
+Pathfinding::Node next;
+bool hasNext;
+bool hasDestination;
 
 sf::Vector2i destination;
 
@@ -54,17 +61,19 @@ void Unit::load() {
     m_vertices.setPrimitiveType(sf::Quads);
     m_vertices.resize(4);
 
-
-    m_vertices[0].position = sf::Vector2f(0 - size.x / 2, 0);
-    m_vertices[1].position = sf::Vector2f(size.x / 2, 0) ;
-    m_vertices[2].position = sf::Vector2f(size.x / 2, size.y);
-    m_vertices[3].position = sf::Vector2f(0 - size.x / 2, size.y);
+    m_vertices[0].position = sf::Vector2f(0, 0);
+    m_vertices[1].position = sf::Vector2f(size.x, 0) ;
+    m_vertices[2].position = sf::Vector2f(size.x, size.y);
+    m_vertices[3].position = sf::Vector2f(0, size.y);
 
     // define its 4 texture coordinates
     m_vertices[0].texCoords = position;
     m_vertices[1].texCoords = sf::Vector2f(position.x + size.x, position.y);
     m_vertices[2].texCoords = sf::Vector2f(position.x + size.x, position.y + size.y);
     m_vertices[3].texCoords = sf::Vector2f(position.x, position.y + size.y);
+
+
+    setOrigin(-size.x, 0);
 
 }
 
@@ -86,73 +95,129 @@ void Unit::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(m_vertices, states);
 }
 
-void Unit::update() {
+void Unit::drawDebug() {
 
-    std::vector< std::vector<int> > onzin;
-
-    std::vector< Pathfinding::Node > nodes;
-
-    std::vector< int > values = { 1 };
-
-    if (i_position.x != destination.x || i_position.y != destination.y) {
-        nodes = Pathfinding::find(
-            Pathfinding::Node{ x: i_position.x, y: i_position.y, f: 0, g: 0, h: 0, isClosed: false }, 
-            Pathfinding::Node{ x: destination.x, y: destination.y, f: 0, g:0, h: 0, isClosed: false }, onzin,  values);
-    } else {
-        setDestination(sf::Vector2i( (rand() % 10) - 5 + i_position.x , (rand() % 10) - 5 + i_position.y));
-    }
-
-    if (nodes.size() == 0) {
-        return;
-    }
-
-    if (nodes[0].x == i_position.x) {
-        m_direction = nodes[0].y > i_position.y ? DOWN : UP;
-    } else {
-        m_direction = nodes[0].x > i_position.x ? RIGHT : LEFT;
-    }
+    // ---- zooi tekenen voor debugView ---------------------
 
     sf::Vector2f position = getPosition();
-    setPosition(position + 0.25f * m_direction);
+    sf::RectangleShape r(sf::Vector2f(32, 32));
+
+    r.setPosition(i_position.x * 32, i_position.y * 32);
+    r.setFillColor(sf::Color({ 0, 0, 255, 200 }));
+    app::debugLayer.draw(r);
+
+    // WAAR STA IK ECHT
+    r.setPosition(position.x, position.y);
+    r.setFillColor(sf::Color({ 255, 255, 0, 200 }));
+    app::debugLayer.draw(r);
+
+    // WAT IS HET DOEL
+    r.setPosition(next.x * 32, next.y * 32);
+    r.setFillColor(sf::Color({ 0, 255, 0, 200 }));
+    app::debugLayer.draw(r);
 
     sf::Text text;
     text.setFont(app::font);
-    text.setCharacterSize(20);
+    text.setCharacterSize(15);
 
     char b[50];
-    sprintf(b, "position (float): %.2f, %.2f", position.x, position.y);
-    text.setString(b);
-    text.setPosition(sf::Vector2f(0, 40));
-    app::debugOverlay.draw(text);
-
-    sprintf(b, "position (rounded): %i, %i", (int) (position.x / 32), (int) (position.y / 32));
-    text.setString(b);
-    text.setPosition(sf::Vector2f(0, 60));
-    app::debugOverlay.draw(text);
-
     sprintf(b, "position (int): %i, %i", i_position.x, i_position.y);
     text.setString(b);
-    text.setPosition(sf::Vector2f(0, 80));
+    text.setPosition(sf::Vector2f(0, 30));
     app::debugOverlay.draw(text);
 
-    sprintf(b, "Doel: %i, %i", destination.x, destination.y);
+    sprintf(b, "next (int): %i, %i", next.x, next.y);
     text.setString(b);
-    text.setPosition(sf::Vector2f(0, 100));
+    text.setPosition(sf::Vector2f(0, 50));
     app::debugOverlay.draw(text);
 
-    sprintf(b, "nodes[0]: %i, %i", nodes[0].x, nodes[0].y);
+    sprintf(b, "position (f): %.0f, %.0f, ", position.x, position.y);
     text.setString(b);
-    text.setPosition(sf::Vector2f(0, 120));
+    text.setPosition(sf::Vector2f(0, 70));
+    app::debugOverlay.draw(text);
+
+    sprintf(b, "next (f): %i, %i, ", next.x * 32, next.y * 32);
+    text.setString(b);
+    text.setPosition(sf::Vector2f(0, 90));
     app::debugOverlay.draw(text);
 
 
-    i_position.x = (int) (position.x / 32); 
-    i_position.y = (int) (position.y / 32); 
+    sprintf(b, "direction: %s", m_direction == UP ? "UP" : m_direction == DOWN ? "DOWN" : m_direction == LEFT ? "LEFT" : "RIGHT");
+    text.setString(b);
+    text.setPosition(sf::Vector2f(0, 110));
+    app::debugOverlay.draw(text);
+
+    r.setPosition(destination.x * 32, destination.y * 32);
+    r.setFillColor(sf::Color({ 0, 100, 250, 130 }));
+    app::debugLayer.draw(r);
 
 }
 
-void Unit::setDestination(const sf::Vector2i& destination) {
+void Unit::update() {
+    drawDebug();
+
+    int tileSize = 32;
+
+    sf::Vector2f position = getPosition();
+
+    if (!hasDestination) {
+        return;
+    }
+
+    if (position.x == destination.x * tileSize && position.y == destination.y * tileSize) {
+        hasDestination = false;
+        return;
+    }
+
+    if (position.x == next.x * tileSize && position.y == next.y * tileSize) {
+        hasNext = false;
+    }
+
+
+    if (!hasNext && nodes.size() > 0) {
+        next = nodes.back();
+        nodes.pop_back();
+        hasNext = true;
+    }
+
+    if (next.x * 32 != position.x) {
+        m_direction = next.x > i_position.x ? RIGHT : LEFT;
+    }
+
+    if (next.y * 32 != position.y) {
+        m_direction = next.y > i_position.y ? DOWN : UP;
+    }
+
+    if (m_direction == LEFT) {
+        setScale(sf::Vector2f(-1.f, 1.f));
+    } else {
+        setScale(sf::Vector2f(1.f, 1.f));
+    }
+
+    i_position.x = (int) floor(position.x / 32);
+    i_position.y = (int) floor(position.y / 32);
+
+
+    setPosition(position +  m_direction);
+}
+
+void Unit::setDestination(sf::Vector2i destination) {
 
     this->destination = destination;
 
+    hasDestination = true;
+
+    std::vector< std::vector<int> > onzin;
+
+    std::vector< int > values = { 1, 3 };
+
+    nodes = Pathfinding::find(
+            Pathfinding::Node{ x: i_position.x, y: i_position.y, f: 0, g: 0, h: 0, status: 0, fromX: 0, fromY: 0 }, 
+            Pathfinding::Node{ x: destination.x, y: destination.y, f: 0, g:0, h: 0, status: 0, fromX: 0, fromY: 0 },
+            onzin, values);
+
+    if (nodes.size() > 0) {
+        hasDestination = true;
+        next = nodes.back();
+    }
 }

@@ -6,13 +6,19 @@ class Pathfinding {
     public: 
 
         struct Node {
+            
+            // voor het gemak
             int x;
             int y;
+
             int f;  // total cost
             int g;  // cost so far
             int h;  // heuristic cost to target
 
-            bool isClosed;
+            int status; // 0 == pristine, 1 == open, 2 == closed;
+
+            int fromX;
+            int fromY;
 
         };
 

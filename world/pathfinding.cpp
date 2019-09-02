@@ -18,124 +18,131 @@ bool isPassable(int value, std::vector< int>& passableValues) {
 
 }
 
-std::vector< Pathfinding::Node > findNeighbors(Pathfinding::Node node, bool includeDiagonal, std::vector< std::vector<int> >& grid, std::vector< int > passableValues) {
-
-    std::vector< Pathfinding::Node > nodes;
-
-    if (includeDiagonal) {
-
-
-    } else {
-
-        // TOP
-        if (node.y - 1 >= 0 && isPassable(grid[node.x][node.y - 1], passableValues)) { 
-            //printf("TOP\n");
-            nodes.push_back({ node.x, node.y - 1 });
-        }
-
-        // BOTTOM
-        if (node.y + 1 <= grid[node.x].size() && isPassable(grid[node.x][node.y + 1], passableValues)) {
-            //printf("BOTTOM\n");
-            nodes.push_back({ node.x, node.y + 1 });
-        }
-        
-        // LEFT
-        if (node.x - 1 >= 0 && isPassable(grid[node.x - 1][node.y], passableValues)) {
-            //printf("LEFT\n");
-            nodes.push_back({ node.x - 1, node.y });
-        }
-
-        // RIGHT
-        if (node.x + 1 <= grid.size() && isPassable(grid[node.x + 1][node.y], passableValues)) {
-            //printf("RIGHT\n");
-            nodes.push_back({ node.x + 1, node.y });
-        }
-
-    }
-
-    return nodes;
-
+std::vector< Pathfinding::Node* > findNeighbors(Pathfinding::Node node, bool includeDiagonal, std::vector< std::vector<int> >& grid, std::vector< int > passableValues) {
+    return std::vector< Pathfinding::Node* >();
 }
 
 
 
 // returns list of nodes
-std::vector< Pathfinding::Node > Pathfinding::find(Node position, Node destination, std::vector< std::vector<int> >& grid, std::vector< int > passableValues) {
+std::vector< Pathfinding::Node > Pathfinding::find(Pathfinding::Node position, Pathfinding::Node destination, std::vector< std::vector<int> >& grid, std::vector< int > passableValues) {
 
-    //printf("pathfinding van (%i, %i) naar (%i, %i)...\n", position.x, position.y, destination.x, destination.y);
+    // dit moet mooier en simpeler kunnen
+    std::vector< std::vector< Node > > map( app::terrain.size(), std::vector<Node>( app::terrain[0].size() ));
+
+    for (int a = 0; a < map.size(); a++) {
+        for (int b = 0; b < map[a].size(); b++) {
+            map[a][b].x = a;
+            map[a][b].y = b;
+        }
+
+    }
+
+    std::vector< Node > path;
+
+    printf("pathfinding van (%i, %i) naar (%i, %i)...\n", position.x, position.y, destination.x, destination.y);
+
+    if (!isPassable(app::terrain[destination.x][destination.y], passableValues)) {
+        printf("destination is not passable\n");
+        return path;
+    }
      
-    Pathfinding::Node currentNode = position;
-    Pathfinding::Node targetNode = destination;
-    Pathfinding::Node bestNode;
+    Node* currentNode;
 
-    std::vector< Pathfinding::Node > openNodes, closedNodes;
-    std::vector< Pathfinding::Node > neighbors;
+    std::vector< Node* > openNodes, closedNodes;
+    std::vector< Node* > neighbors;
 
     int g = 0;
 
     bool destinationReached = false;
 
-    closedNodes.push_back(currentNode);
+    openNodes.push_back(&map[position.x][position.y]);
+
+    //printf("sadfasdfsadfasdf\n");
 
     do {
-    
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-        neighbors = findNeighbors(currentNode, false, app::terrain, passableValues);
+        // even pauze
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+        currentNode = nullptr;
+        neighbors.clear();
+
+        // stap 1: vind de most promising node
+        for (auto node : openNodes) {
+            if (currentNode == nullptr || node->h < currentNode->h) {
+                currentNode = node;
+            }
+        }
+
+        printf("CurrentNode: (%i, %i)\n", currentNode->x, currentNode->y);
+
+        for (auto it = openNodes.begin(); it != openNodes.end(); it++) {
+            if (*it == currentNode) {
+                openNodes.erase(it);
+                break;
+            }
+        }
+
+        currentNode->status = 2;
+
+        // stap 2: de buurtjes vinden
+
+        if (currentNode->y - 1 >= 0 && isPassable( app::terrain[ currentNode->x ][ currentNode->y - 1], passableValues)) { 
+            neighbors.push_back(&map[ currentNode->x ][ currentNode->y - 1]);
+        }
+
+        if (currentNode->y + 1 < map[ currentNode->x ].size() && isPassable( app::terrain[ currentNode->x ][ currentNode->y + 1], passableValues)) { 
+            neighbors.push_back(&map[ currentNode->x ][ currentNode->y + 1]);
+        }
+
+        if (currentNode->x - 1 >= 0 && isPassable( app::terrain[ currentNode->x - 1 ][ currentNode->y], passableValues)) { 
+            neighbors.push_back(&map[ currentNode->x - 1 ][ currentNode->y]);
+        }
+
+        if (currentNode->x + 1 < map.size() && isPassable( app::terrain[ currentNode->x + 1 ][ currentNode->y], passableValues)) { 
+            neighbors.push_back(&map[ currentNode->x + 1 ][ currentNode->y]);
+        }
+
+
 
         for (auto neighbor : neighbors) {
+            //printf("Neighbor gevonden: (%i, %i)\n", neighbor->x, neighbor->y);
 
-            int h = abs( neighbor.x - destination.x) + abs (neighbor.y - destination.y);
+            int h = abs( neighbor->x - destination.x) + abs (neighbor->y - destination.y);
 
-            neighbor.f = g + h;
-            neighbor.g = g;
-            neighbor.h = h;
 
-            for (auto node : closedNodes) {
-                if (node.x == neighbor.x && node.y == neighbor.y) {
-                    neighbor.isClosed = true;
-                }
+            switch(neighbor->status) {
 
-            }
+                case 2: 
+                    // node is closed; negeren;
+                    break;
 
-            for (auto node : openNodes) {
-                if (node.x == neighbor.x && node.y == neighbor.y) {
-                    neighbor.isClosed = true;
-                }
+                case 1: 
+                    // node is al geopend. kortere weg?
 
-            }
+                    break; // blabla
 
-            if (!neighbor.isClosed) {
-                openNodes.push_back(neighbor);
+                case 0: 
+                    neighbor->f = g + h;
+                    neighbor->g = g;
+                    neighbor->h = h;
+                    neighbor->fromX = currentNode->x;
+                    neighbor->fromY = currentNode->y;
+                    neighbor->status = 1; openNodes.push_back(neighbor); 
+                    break;
+
+
+
+
             }
 
         }
-
-        bestNode.h = INT_MAX;
-
-        int best_index = 0;
-
-        // find best node
-        for (int k = 0; k < openNodes.size(); k++) {
-            if (openNodes[k].h < bestNode.h) {
-                bestNode = openNodes[k];
-                best_index = k;
-            }
-        }
-
-        // remove from openNodes list;
-        if (openNodes.size() > 0) {
-            openNodes.erase(openNodes.begin() + best_index);
-        }
-
-        // add to closed Nodes list;
-        closedNodes.push_back(bestNode);
-        
-        currentNode = bestNode;
 
         g++;
 
-        sf::RectangleShape r(sf::Vector2f(32, 32));
+/*
+        //sf::RectangleShape r(sf::Vector2f(32, 32));
 
         // orig
         r.setPosition(position.x * 32, position.y * 32);
@@ -149,6 +156,61 @@ std::vector< Pathfinding::Node > Pathfinding::find(Node position, Node destinati
 
         //printf("Nu: (%i, %i), -> h: %i \n ", currentNode.x, currentNode.y, currentNode.h);
             
+            */
+        
+        sf::RenderTexture q;
+        q.create(3200, 3200);
+        q.clear({ 0, 0, 0, 0});
+
+        sf::RectangleShape r(sf::Vector2f(32, 32));
+        r.setFillColor(sf::Color({ 255, 0, 0, 255 }));
+        r.setPosition(destination.x * 32, destination.y * 32);
+        q.draw(r);
+        
+        for (int i = 0; i < map.size(); i++) {
+            for (int j = 0; j < map[i].size(); j++) {
+
+                r.setPosition(i * 32, j * 32);
+
+                if (map[i][j].status == 0) {
+                    r.setFillColor(sf::Color({ 0, 0, 0, 0 }));
+                    q.draw(r);
+                }
+                if (map[i][j].status == 1) {
+                    r.setFillColor(sf::Color({ 00, 250, 0 }));
+                    q.draw(r);
+                }
+                if (map[i][j].status == 2) {
+                    r.setFillColor(sf::Color({ 0, 0, 255 }));
+                    q.draw(r);
+                    sf::CircleShape triangle(8, 3);
+                    triangle.setFillColor(sf::Color({ 240, 230, 203 }));
+                    triangle.setOrigin(4, 4);
+                    if (map[i][j].fromX > i) {
+                        triangle.rotate(-90);
+                    }
+                    if (map[i][j].fromX < i) {
+                        triangle.rotate(90);
+                    }
+                    if (map[i][j].fromY < j) {
+                        triangle.rotate(180);
+                    }
+
+                    triangle.setPosition(i * 32 + 12, j * 32 + 12);
+
+                    q.draw(triangle);
+                }
+
+
+            }
+        }
+
+        q.display();
+
+        app::window->draw(sf::Sprite(q.getTexture()));
+        app::window->display();
+
+        /*
         for (auto node : openNodes) {
             r.setPosition(node.x * 32, node.y * 32);
             r.setFillColor(sf::Color({ 0, 0, 255, 30 }));
@@ -162,19 +224,27 @@ std::vector< Pathfinding::Node > Pathfinding::find(Node position, Node destinati
             r.setFillColor(sf::Color({ 255, 0, 0, 30 }));
             app::debugLayer.draw(r);
         }
+        */
 
-        if (currentNode.x == destination.x && currentNode.y == destination.y) {
-            //printf("destination reached\n");
-            destinationReached = true;
+        if (currentNode->x == destination.x && currentNode->y == destination.y) {
+            Node node = *currentNode;
+            printf("destination reached\n");
+
+            //path.push_back(node);
+            while (!(node.x == position.x && node.y == position.y)) {
+                path.push_back(node);
+                node = map[ node.fromX ][ node.fromY ];
+                printf("pupke dabei: (%i, %i) \n", node.x, node.y);
+            }
+
+            return path;
+
         }
 
-        if (openNodes.size() == 0) {
-            //printf("geen open nodes meer\n");
-        }
+    } while(openNodes.size() > 0);
 
-    } while(openNodes.size() > 0 && !destinationReached);
+    printf("geen open nodes meer\n");
 
-
-    return openNodes;
+    return path;
 
 }

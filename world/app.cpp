@@ -185,8 +185,8 @@ void app::initialize() {
             }
 
             if (elevation [i][j] > 0.7) {
-                terrain[i][j] = 4;    
-                image.setPixel(i, j, sf::Color({ 200, 100, 80 }));
+                //terrain[i][j] = 4;    
+                //image.setPixel(i, j, sf::Color({ 200, 100, 80 }));
             }
 
             if (elevation[i][j] > 0.4 && elevation[i][j] < 0.6 && humidity[i][j]  < 0.4) {
@@ -314,7 +314,6 @@ void createUnit() {
     u->load();
     u->i_position = sf::Vector2i(i, j);
     u->setPosition(sf::Vector2f(i * tileSize, j * tileSize));
-    u->setDestination(sf::Vector2i(rand() % 50, rand() % 50));
     u->setScale(sf::Vector2f(2.f, 2.f));
 
     units.push_back(*u);
@@ -483,9 +482,19 @@ void app::createBuilding() {
 void app::onMouseButtonPressed(sf::Event& event) {
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        /*
         if (buildingBuildings)
             createBuilding();
             else createUnit();
+            */
+
+        int i = (oldMouseX + cameraX) / tileSize;
+        int j = (oldMouseY + cameraY) / tileSize;
+
+        for (auto& unit : units) {
+            unit.setDestination(sf::Vector2i(i, j));
+        }
+
     }
 }
 
@@ -504,6 +513,10 @@ void app::onMouseWheelScrolled(sf::Event& event) {
 void app::onKeyPressed(sf::Event& event) {
     
     switch(event.key.code) {
+
+        case sf::Keyboard::Z: 
+            createUnit();
+            break;
 
         case sf::Keyboard::D: cameraX += 100; break;
         case sf::Keyboard::A: cameraX -= 100; break;
@@ -525,6 +538,7 @@ void app::onKeyPressed(sf::Event& event) {
         case sf::Keyboard::F1: buildingBuildings = true; break;
         case sf::Keyboard::F2: buildingBuildings = false; break;
     }
+
 
     checkCameraBounds();
 
@@ -596,7 +610,7 @@ void app::draw() {
 
     }
 
-    for (auto& unit : units) {
+    for (const auto& unit : units) {
         window->draw(unit);
     }
 }
