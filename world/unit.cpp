@@ -128,6 +128,9 @@ void Unit::drawDebug() {
 void Unit::update() {
     //drawDebug();
 
+    m_gridPosition.x = (int) floor(m_position.x / 32);
+    m_gridPosition.y = (int) floor(m_position.y / 32);
+
     int tileSize = 32;
 
     if (!hasDestination) {
@@ -158,8 +161,6 @@ void Unit::update() {
         m_direction = m_next.y > m_gridPosition.y ? DOWN : UP;
     }
 
-    m_gridPosition.x = (int) floor(m_position.x / 32);
-    m_gridPosition.y = (int) floor(m_position.y / 32);
 
     m_position += m_direction;
 }

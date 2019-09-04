@@ -560,10 +560,10 @@ void app::onKeyPressed(sf::Event& event) {
             town.grow();
             break;
 
-        case sf::Keyboard::D: cameraX += 100; break;
-        case sf::Keyboard::A: cameraX -= 100; break;
-        case sf::Keyboard::W: cameraY -= 100; break;
-        case sf::Keyboard::S: cameraY += 100; break;
+        case sf::Keyboard::D: cameraX += 200; break;
+        case sf::Keyboard::A: cameraX -= 200; break;
+        case sf::Keyboard::W: cameraY -= 200; break;
+        case sf::Keyboard::S: cameraY += 200; break;
 
         case sf::Keyboard::Num0: currentBuild = 0; break;
         case sf::Keyboard::Num1: currentBuild = 1; break;
