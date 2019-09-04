@@ -7,6 +7,8 @@
 #include "unit.h"
 #include "pathfinding.h"
 
+#include "town.h"
+
 sf::Sprite s;
 sf::Texture t;
 sf::View app::view;
@@ -53,6 +55,8 @@ bool buildingBuildings = false;
 
 sf::RenderTexture app::debugLayer;
 sf::RenderTexture app::debugOverlay;
+
+Town town;
 
 int getTileMask(const std::vector< std::vector<int> >& array,  int a, int b, int tile) {
 
@@ -107,7 +111,7 @@ void app::initialize() {
 
     terrain = std::vector< std::vector<int> >(worldY, std::vector<int>(worldX));
     terrain_tiles = std::vector< std::vector<int> >(worldY, std::vector<int>(worldX));
-    buildings = std::vector< std::vector<int> >(worldY, std::vector<int>(worldX, 8)); // 8 = default transparant
+    buildings = std::vector< std::vector<int> >(worldY, std::vector<int>(worldX));
     buildings_tiles = std::vector< std::vector<int> >(worldY, std::vector<int>(worldX, 8)); // 8 = default transparant
 
     sf::Image image;
@@ -293,6 +297,11 @@ void app::initialize() {
     debugLayer.create(3200, 3200);
     debugOverlay.create(window->getSize().x, window->getSize().y);
 
+    // town
+
+    town = Town(20, 20);
+    
+
 }
 
 void createUnit() {
@@ -435,6 +444,10 @@ void app::updateBuildingsMasks() {
                 buildings_tiles[i][j] = index;
             }
 
+            if (buildings[i][j] >= 192 ) {
+                buildings_tiles[i][j] = buildings[i][j];
+            }
+
         }
     }
 
@@ -541,6 +554,10 @@ void app::onKeyPressed(sf::Event& event) {
 
         case sf::Keyboard::Z: 
             buildingBuildings ? createBuilding() : createUnit();
+            break;
+
+        case sf::Keyboard::X: 
+            town.grow();
             break;
 
         case sf::Keyboard::D: cameraX += 100; break;

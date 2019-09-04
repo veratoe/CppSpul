@@ -26,9 +26,10 @@ class app {
 
         static int frameCount;
 
+        static void updateBuildingsMasks();
+
     private:
 
-        static void updateBuildingsMasks();
         static void createBuilding();
         static void drawDebugView();
 };
