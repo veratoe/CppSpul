@@ -6,6 +6,7 @@
 #include "tilemap.cpp"
 #include "unit.h"
 #include "pathfinding.h"
+#include "layer.h"
 
 #include "town.h"
 
@@ -549,6 +550,9 @@ void app::onMouseWheelScrolled(sf::Event& event) {
 }
 
 void app::onKeyPressed(sf::Event& event) {
+
+    int i = (oldMouseX + cameraX) / tileSize;
+    int j = (oldMouseY + cameraY) / tileSize;
     
     switch(event.key.code) {
 
@@ -558,6 +562,23 @@ void app::onKeyPressed(sf::Event& event) {
 
         case sf::Keyboard::X: 
             town.grow();
+            break;
+
+        case sf::Keyboard::C: 
+        for (auto& unit : units) {
+
+            if (unit.isSelected) {
+                unit.setDestination(sf::Vector2i(i, j));
+            }
+        }
+            break;
+
+        case sf::Keyboard::P: 
+            Pathfinding::clearDebugView();
+            break;
+
+        case sf::Keyboard::O: 
+            Pathfinding::algorithm = Pathfinding::algorithm == Pathfinding::Algorithm::GREEDY ? Pathfinding::Algorithm::ASTAR : Pathfinding::Algorithm:: GREEDY;
             break;
 
         case sf::Keyboard::D: cameraX += 200; break;
@@ -626,6 +647,13 @@ void app::draw() {
     window->setView(view);
     window->draw(terrain_layer);
     window->draw(buildings_layer);
+
+    //Layer l;
+
+    //l.layers = std::vector< Layer* >();
+
+//    printf("%i\n", (int) Layer::layers.size());
+    Layer::drawLayers(*window);
 
 
     if (debugViewOn) {

@@ -63,70 +63,21 @@ void Unit::drawDebug() {
 
     // ---- zooi tekenen voor debugView ---------------------
 
-    sf::RectangleShape r(sf::Vector2f(32, 32));
-
-    // --- Position (grid)
-    /*
-    r.setPosition(m_gridPosition.x * 32, m_gridPosition.y * 32);
-    r.setFillColor(sf::Color({ 0, 0, 255, 200 }));
-    app::debugLayer.draw(r);
-    */
-
-    // --- Position ---
-    //r.setPosition(m_position.x, m_position.y);
-    //r.setFillColor(sf::Color({ 255, 255, 0, 200 }));
-    //app::debugLayer.draw(r);
-
-    // --- Next ---
-    /*
-    r.setPosition(m_next.x * 32, m_next.y * 32);
-    r.setFillColor(sf::Color({ 0, 0, 0, 0 }));
-    r.setOutlineColor(sf::Color({ 0, 255, 0, 255 }));
-    r.setOutlineThickness(2.f);
-    app::debugLayer.draw(r);
-
-    r.setOutlineThickness(0);
-
     sf::Text text;
     text.setFont(app::font);
     text.setCharacterSize(15);
 
     char b[50];
-    sprintf(b, "position (int): %i, %i", m_gridPosition.x, m_gridPosition.y);
-    text.setString(b);
-    text.setPosition(sf::Vector2f(0, 30));
-    app::debugOverlay.draw(text);
-
-    sprintf(b, "next (int): %i, %i", next.x, next.y);
-    text.setString(b);
-    text.setPosition(sf::Vector2f(0, 50));
-    app::debugOverlay.draw(text);
-
-    sprintf(b, "position (f): %.0f, %.0f, ", m_position.x, m_position.y);
-    text.setString(b);
-    text.setPosition(sf::Vector2f(0, 70));
-    app::debugOverlay.draw(text);
-
-    sprintf(b, "next (f): %i, %i, ", next.x * 32, next.y * 32);
-    text.setString(b);
-    text.setPosition(sf::Vector2f(0, 90));
-    app::debugOverlay.draw(text);
-
-
     sprintf(b, "direction: %s", m_direction == UP ? "UP" : m_direction == DOWN ? "DOWN" : m_direction == LEFT ? "LEFT" : "RIGHT");
     text.setString(b);
     text.setPosition(sf::Vector2f(0, 110));
     app::debugOverlay.draw(text);
 
-    r.setPosition(destination.x * 32, destination.y * 32);
-    r.setFillColor(sf::Color({ 0, 100, 250, 130 }));
-    app::debugLayer.draw(r);
 
-*/
 }
 
 void Unit::update() {
-    //drawDebug();
+    drawDebug();
 
     m_gridPosition.x = (int) floor(m_position.x / 32);
     m_gridPosition.y = (int) floor(m_position.y / 32);
@@ -211,9 +162,6 @@ void Unit::draw(sf::RenderTarget& target) {
         rect.setPosition(m_gridPosition.x * tileSize, m_gridPosition.y * tileSize);
         target.draw(rect);
     }
-
-    //printf("%i\n", app::frameCount);
-    //printf("%i\n",frameOffset);
 
     if (m_direction == LEFT) {
         m_sprite.setTextureRect(sf::IntRect(frameOffset + m_texturePosition.x + m_textureSize.x, m_texturePosition.y, - m_textureSize.x, m_textureSize.y));
