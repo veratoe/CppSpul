@@ -1,5 +1,6 @@
 #include "town.h"
 #include "app.h"
+#include "layer.h"
 
 struct Tile {
     int x;
@@ -13,7 +14,26 @@ int offsetX, offsetY;
 
 int size;
 
+void findRoadTiles() {
+
+    roadTiles.clear();
+
+
+    for (int i = 0; i < app::buildings.size(); i++ ) {
+        for (int j = 0; j < app::buildings[i].size(); j++ ) {
+            if (app::buildings[i][j] == 1) {
+                roadTiles.push_back(Tile{ i, j });
+            }
+
+        }
+    }
+
+}
+
+
 int calculateRoadMask(const Tile& tile) {
+
+    //printf("(%i, %i)\n", tile.x, tile.y);
     
     int bit = 0;
     int mask = 0;
@@ -27,8 +47,8 @@ int calculateRoadMask(const Tile& tile) {
 
             if (tile.x + i < 0) continue;
             if (tile.y + j < 0) continue;
-            if (tile.x + i >= app::buildings.size()) continue;
-            if (tile.y + j >= app::buildings[i].size()) continue;
+            //if (tile.x + i >= app::buildings.size()) continue;
+            //if (tile.y + j >= app::buildings[i].size()) continue;
 
 
             if (app::buildings[ tile.x + i ][ tile.y + j ] == 1) {
@@ -39,10 +59,41 @@ int calculateRoadMask(const Tile& tile) {
             
         }
     }
-    
 
     return mask;
 
+}
+
+void Town::drawDebugView() {
+
+    m_layer->m_texture.clear({ 0, 0, 0, 0 });
+
+    sf::Text text;
+    text.setFont(app::font);
+    text.setCharacterSize(15);
+
+    text.setString("sdlfksjflaksdjf");
+    text.setPosition(sf::Vector2f(0, 130));
+    m_layer->m_texture.draw(text);
+
+    findRoadTiles();
+
+    for (auto& tile : roadTiles) {
+        int x = tile.x * 32;
+        int y = tile.y * 32;
+
+        int mask = calculateRoadMask({ tile.x, tile.y }) ;
+        text.setString(std::to_string(mask));
+        text.setPosition(sf::Vector2f( x , y));
+
+        m_layer->m_texture.draw(text);
+        if ((mask & 90) == 8 || (mask & 90) == 2 || (mask & 90) == 16 || (mask & 90) == 64) {
+            sf::RectangleShape r(sf::Vector2f(32, 32));
+            r.setFillColor({ 0, 0, 255, 100 });
+            r.setPosition(x, y);
+            m_layer->m_texture.draw(r);
+        }
+    }
 }
 
 void printMask(const int mask) {
@@ -67,22 +118,6 @@ void printMask(const int mask) {
     }
 
     printf("\n");
-}
-
-void findRoadTiles() {
-
-    roadTiles.clear();
-
-
-    for (int i = 0; i < app::buildings.size(); i++ ) {
-        for (int j = 0; j < app::buildings[i].size(); j++ ) {
-            if (app::buildings[i][j] == 1) {
-                roadTiles.push_back(Tile{ i, j });
-            }
-
-        }
-    }
-
 }
 
 bool inArray(int needle, const std::vector< int >& haystack) {
@@ -115,15 +150,18 @@ void Town::buildRoad() {
 
         // willekeurige start index
         int index = rand() % roadTiles.size();
+        printf("%i, %i\n", (int) roadTiles.size(), index);
 
         // vind een geschikt stukje van de bestaande wegen
 
         for (int i = 0; i < roadTiles.size(); i++) {
             if (index >= roadTiles.size()) index = 0;
-            Tile tile = roadTiles[i];
+            Tile tile = roadTiles[index];
             int mask = calculateRoadMask(tile);
 
-            if (mask == 2 || mask == 8 || mask == 16 || mask == 64) {
+            if ((mask & 90) == 2 || (mask & 90) == 8 || (mask & 90) == 16 || (mask & 90)  == 64) {
+
+                //printf("%i is geschikt\n", i);
 
                 Tile tiles[4][3] = {
                     {{ -1, 0 }, {1, 0}, {0, 1}},
@@ -134,28 +172,23 @@ void Town::buildRoad() {
 
                 int offset;
 
-                if (mask == 2) offset = 0;
-                if (mask == 64) offset = 1;
-                if (mask == 8) offset = 2;
-                if (mask == 16) offset = 3;
+                if ((mask & 90) == 2) offset = 0;
+                if ((mask & 90) == 64) offset = 1;
+                if ((mask & 90) == 8) offset = 2;
+                if ((mask & 90) == 16) offset = 3;
                 
-                int start = rand() % 3;
-
-                printf("start: %i\n", start);
+                //int start = rand() % 3;
+                int start = 2;
 
                 for (int j = 0; j < 3; j++) {
                     if (start > 2) start = 0;
 
-                    printf("%i -> %i, %i\n", start, tiles[offset][start].x, tiles[offset][start].y);
-
                     Tile candidate = { tile.x + tiles[offset][start].x, tile.y + tiles[offset][start].y };
-                    printf("candidate: (%i, %i)\n", candidate.x, candidate.y);
 
                     if (isValidTile( candidate) && app::buildings[ candidate.x ][ candidate.y ] == 0) {
                         app::buildings[ candidate.x ][ candidate.y ] = 1;
                         app::updateBuildingsMasks();
 
-                        printf("done!\n");
                         return;
                     }
                     
@@ -187,7 +220,6 @@ void Town::buildRoad() {
             int a = rand() % 4;
 
             Tile tile = { roadTiles[0].x + tiles[a].x, roadTiles[0].y + tiles[a].y};
-            printf("%i, %i\n", tile.x, tile.y);
             if (isValidTile(tile) && app::buildings[ tile.x ][ tile.y ] == 0) {
                 app::buildings[ tile.x ][ tile.y ] = 1;
                 app::updateBuildingsMasks();
@@ -227,35 +259,24 @@ bool buildHouse() {
     // willekeurige start index
     int index = rand() % roadTiles.size();
 
-    printf("check voor huisje: ");
-
     // vind een geschikt stukje van de bestaande wegen
 
     for (int i = 0; i < roadTiles.size(); i++) {
         if (index >= roadTiles.size()) index = 0;
         Tile tile = roadTiles[i];
         int mask = calculateRoadMask(tile); 
-        printf("%i.%i.%s ", i, mask, ((mask & 2) && (mask & 64)) ? "!" : ".");
 
         // noord - zuid
-        printf("     %i     ", mask);
         if ((mask & 2) && (mask & 64)) {
-            printf("NZ!\n");
             
 
             if (isValidTile({ tile.x + 1, tile.y }) && app::buildings[ tile.x + 1][ tile.y] == 0 ) {
-         //       printf("3 stukjes NZ, mask: %i\n", mask);
-                printMask(mask);
-                printf("mask is %i, rechts ervan\n", mask);
                 app::buildings[ tile.x + 1][ tile.y] = 192 + (rand() % 4);
                 app::updateBuildingsMasks();
                 return true;
             }
 
             if (isValidTile({ tile.x - 1, tile.y }) && app::buildings[ tile.x - 1][ tile.y] == 0 ) {
-          //      printf("3 stukjes NZ, mask: %i\n", mask);
-                printMask(mask);
-                printf("mask is %i, links ervan\n", mask);
                 app::buildings[ tile.x - 1][ tile.y] = 192 + (rand() % 4);
                 app::updateBuildingsMasks();
                 return true;
@@ -265,19 +286,14 @@ bool buildHouse() {
 
         // oost - west
         if (mask & 24 == 24) {
-            printf("OW!\n");
 
             if (isValidTile({ tile.x, tile.y + 1 }) && app::buildings[ tile.x ][ tile.y + 1] == 0 ) {
-                printMask(mask);
-                printf("mask is %i, eronder\n", mask);
                 app::buildings[ tile.x][ tile.y + 1] = 192 + (rand() % 4);
                 app::updateBuildingsMasks();
                 return true;
             }
 
             if (isValidTile({ tile.x, tile.y - 1 }) && app::buildings[ tile.x ][ tile.y - 1] == 0 ) {
-                printMask(mask);
-                printf("mask is %i, erboven\n", mask);
                 app::buildings[ tile.x ][ tile.y - 1] = 192 + (rand() % 4);
                 app::updateBuildingsMasks();
                 return true;
@@ -287,7 +303,6 @@ bool buildHouse() {
 
         index++;
     }
-        printf("\n");
 
     return false;
 }
@@ -300,8 +315,7 @@ void Town::grow() {
         buildRoad();
     }
 
-}
-
-Town::Town() {
+    drawDebugView();
 
 }
+

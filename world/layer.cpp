@@ -1,59 +1,42 @@
 #include "layer.h"
 #include <vector>
 
-std::vector< Layer* > Layer::layers;
+std::vector< Layer* >* Layer::layers;
 
 Layer::Layer() {
+    m_texture.create(3200, 3200);
+    if (layers == NULL) {
+        layers = new std::vector< Layer* >();
 
-    m_texture.create(3200, 3200); 
-    layers.push_back(this);
-    printf("nieuwe layer aangemaakt\n");
-    printf("aantal lagen: %i\n", (int) layers.size());
+    }
+    layers->push_back(this);
+    printf("Layer constructor called\n");
+    //printf("%i\n", (int) layers->size());
+}
+
+Layer::Layer(const Layer& l) {
+    printf("copy constructor called\n");
 
 }
 
-
-void Layer::fade() {
-/*
-    if (rand() % 100 < 90) return;
-
-    sf::RenderTexture copy;
-    copy.create(3200, 3200);
-    copy.clear({ 0, 0, 0, 0 });
-
-    sf::Sprite sprite(m_texture.getTexture());
-    sprite.setColor({ 255, 255, 255, 254});
-
-    copy.draw(sprite);
-
-    m_texture.clear({ 0, 0, 0, 0 });
-    m_texture.draw(sf::Sprite(copy.getTexture()));
-    //printf("fade!\n");
-
-*/
+Layer::~Layer() {
 }
 
-
-void Layer::draw(sf::RenderTarget& target) {
-
-    //printf("laag tekenene\n");
+void Layer::draw(sf::RenderTarget* target) {
 
     if (m_visible) {
 
         m_texture.display();
-        target.draw(sf::Sprite(m_texture.getTexture()));
+        //target->setView(target->getDefaultView());
+        target->draw(sf::Sprite(m_texture.getTexture()));
 
     }
 
-    fade();
-
-    //m_texture.clear({ 0, 0, 0, 0 });
-
 }
 
-void Layer::drawLayers(sf::RenderTarget& target) {
+void Layer::drawLayers(sf::RenderTarget* target) {
 
-    for (auto& layer : layers) {
+    for (auto& layer : *layers) {
         layer->draw(target);
     }
 

@@ -37,12 +37,12 @@ std::vector< Pathfinding::Node* > findNeighbors(Pathfinding::Node node, bool inc
 
 void Pathfinding::clearDebugView() {
 
-    m_layer->m_texture.clear({ 0, 0, 0, 0 });
 
 }
 
 
 void Pathfinding::debugView(Node start, Pathfinding::Node destination, std::vector< std::vector< Pathfinding::Node > > map) { 
+
 
     // destination
 
@@ -72,13 +72,13 @@ void Pathfinding::debugView(Node start, Pathfinding::Node destination, std::vect
 
             // node == open
             if (map[i][j].status == 1) {
-                r.setFillColor(sf::Color({ 255, 0 , 255, 128 }));
+                r.setFillColor(sf::Color({ 0, 0 , 255, 128 }));
                 m_layer->m_texture.draw(r);
             }
 
             // node == closed;
             if (map[i][j].status == 2) {
-                r.setFillColor(sf::Color({ 255, 255,0 , 128 }));
+                r.setFillColor(sf::Color({ 0, 255, 0, 128 }));
                 m_layer->m_texture.draw(r);
             }
 
@@ -95,6 +95,8 @@ std::vector< Pathfinding::Node > Pathfinding::find(Pathfinding::Node position, P
         Pathfinding::initialize();
 
     }
+
+    m_layer->m_texture.clear({ 0, 0, 0, 0 });
 
     // dit moet mooier en simpeler kunnen
     std::vector< std::vector< Node > > map( app::terrain.size(), std::vector<Node>( app::terrain[0].size() ));
@@ -225,15 +227,10 @@ std::vector< Pathfinding::Node > Pathfinding::find(Pathfinding::Node position, P
 
         if (currentNode->x == destination.x && currentNode->y == destination.y) {
             Node node = *currentNode;
-            printf("destination reached\n");
 
             while (!(node.x == position.x && node.y == position.y)) {
                 path.push_back(node);
-                node = map[ node.fromX ][ node.fromY ];
 
-                sf::RectangleShape r;
-                //r.setFillColor(sf::Color({ 0, 0, 255, 100 }));
-                m_layer->m_texture.draw(r);
                 sf::CircleShape triangle(8, 3);
                 triangle.setFillColor(sf::Color({ 255, 255, 255 }));
                 triangle.setOrigin(4, 4);
@@ -251,6 +248,7 @@ std::vector< Pathfinding::Node > Pathfinding::find(Pathfinding::Node position, P
                 triangle.setPosition(node.x * 32 + 12, node.y * 32 + 12);
 
                 m_layer->m_texture.draw(triangle);
+                node = map[ node.fromX ][ node.fromY ];
             }
 
             debugView(position, destination, map);

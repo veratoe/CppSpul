@@ -6,18 +6,21 @@
 
 class Layer {
 
-    static std::vector< Layer* > layers;
+        static std::vector< Layer* >* layers;
+
 
     public:
     
         Layer();
-        void draw(sf::RenderTarget& target);
+        ~Layer();
+        Layer(const Layer& l);
+        void draw(sf::RenderTarget* target);
         void fade();
 
+        static void init();
 
-        static void drawLayers(sf::RenderTarget& target);
-        
 
+        static void drawLayers(sf::RenderTarget* target);
 
 
         bool m_visible = true;
@@ -27,6 +30,7 @@ class Layer {
 
     private:
 
+        static int layerCount;
 
 };
 

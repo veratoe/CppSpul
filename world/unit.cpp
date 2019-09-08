@@ -8,6 +8,7 @@ bool Unit::hasLoaded;
 
 Unit::Unit(Unit::UnitType type) {
 
+
     m_type = type;
 
 
@@ -45,19 +46,21 @@ Unit::Unit(Unit::UnitType type) {
             break;
     }
     
-    //m_sprite.setTexture(s_unitTexture);
-    //m_sprite.setTextureRect(sf::IntRect(m_texturePosition.x, m_texturePosition.y, m_textureSize.x, m_textureSize.y));
-
     m_sprite.setScale(2.f, 2.f);
 
 }
 
 
 
-const sf::Vector2f Unit::UP(0.0f, -1.0f);
-const sf::Vector2f Unit::DOWN(0.0f, 1.0f);
-const sf::Vector2f Unit::LEFT(-1.0f, 0.0f);
-const sf::Vector2f Unit::RIGHT(1.0f, 0.0f);
+
+void Unit::setDirection(Direction direction) {
+
+    if (direction == m_direction) {
+        printf("direction niet veanderd\n");
+        return;
+    }
+
+}
 
 void Unit::drawDebug() {
 
@@ -112,12 +115,18 @@ void Unit::update() {
         m_direction = m_next.y > m_gridPosition.y ? DOWN : UP;
     }
 
+    switch(m_direction) {
 
-    m_position += m_direction;
+        case UP:     m_position += sf::Vector2f(0.0f, -1.0f); break;
+        case DOWN:   m_position += sf::Vector2f(0.0f, 1.0f); break;
+        case LEFT:   m_position += sf::Vector2f(-1.0f, 0.0f); break;
+        case RIGHT:  m_position += sf::Vector2f(1.0f, 0.0f); break;
+
+    }
+    
 }
 
 void Unit::setDestination(sf::Vector2i destination) {
-    printf("setting destination\n");
 
     m_destination = destination;
 
@@ -135,6 +144,8 @@ void Unit::setDestination(sf::Vector2i destination) {
     if (m_nodes.size() > 0) {
         hasDestination = true;
         m_next = m_nodes.back();
+        m_nodes.pop_back();
+
     }
 }
 
