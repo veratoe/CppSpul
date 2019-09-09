@@ -6,6 +6,7 @@
 #include "tilemap.cpp"
 #include "unit.h"
 #include "pathfinding.h"
+#include "layer.h"
 
 #include "town.h"
 
@@ -56,7 +57,7 @@ bool buildingBuildings = false;
 sf::RenderTexture app::debugLayer;
 sf::RenderTexture app::debugOverlay;
 
-Town town;
+Town town(20, 20);
 
 int getTileMask(const std::vector< std::vector<int> >& array,  int a, int b, int tile) {
 
@@ -299,7 +300,7 @@ void app::initialize() {
 
     // town
 
-    town = Town(20, 20);
+    //town.setPosition(20, 20);
     
 
 }
@@ -549,6 +550,9 @@ void app::onMouseWheelScrolled(sf::Event& event) {
 }
 
 void app::onKeyPressed(sf::Event& event) {
+
+    int i = (oldMouseX + cameraX) / tileSize;
+    int j = (oldMouseY + cameraY) / tileSize;
     
     switch(event.key.code) {
 
@@ -558,6 +562,23 @@ void app::onKeyPressed(sf::Event& event) {
 
         case sf::Keyboard::X: 
             town.grow();
+            break;
+
+        case sf::Keyboard::C: 
+        for (auto& unit : units) {
+
+            if (unit.isSelected) {
+                unit.setDestination(sf::Vector2i(i, j));
+            }
+        }
+            break;
+
+        case sf::Keyboard::P: 
+            Pathfinding::clearDebugView();
+            break;
+
+        case sf::Keyboard::O: 
+            Pathfinding::algorithm = Pathfinding::algorithm == Pathfinding::Algorithm::GREEDY ? Pathfinding::Algorithm::ASTAR : Pathfinding::Algorithm:: GREEDY;
             break;
 
         case sf::Keyboard::D: cameraX += 200; break;
@@ -619,13 +640,10 @@ void app::onMouseMoved(sf::Event& event) {
 
 void app::draw() {
 
-    //sf::Sprite s(r.getTexture());
-    //s.setPosition(sf::Vector2f(0.0f, 0.0f));
-    //s.scale(sf::Vector2f(4.0f, 4.0f));
-
     window->setView(view);
     window->draw(terrain_layer);
     window->draw(buildings_layer);
+
 
 
     if (debugViewOn) {
@@ -651,6 +669,8 @@ void app::draw() {
         debugOverlay.clear(sf::Color(0, 0, 0, 0));
 
     }
+
+    Layer::drawLayers(window);
 
     for (auto& unit : units) {
         unit.draw(*window);

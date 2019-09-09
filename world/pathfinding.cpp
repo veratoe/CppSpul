@@ -6,6 +6,20 @@
 #include <chrono>
 #include <thread>
 
+Layer* Pathfinding::m_layer = nullptr;
+
+bool Pathfinding::classInitialized = false;
+
+Pathfinding::Algorithm Pathfinding::algorithm;
+
+void Pathfinding::initialize() {
+
+    m_layer = new Layer();
+
+    printf("Klasje maken!\n");
+    classInitialized = true;
+
+}
 
 bool isPassable(int value, std::vector< int>& passableValues) {
 
@@ -13,7 +27,6 @@ bool isPassable(int value, std::vector< int>& passableValues) {
         if (value == v) return true;
     }   
 
-    //printf("%i not passable!", value);
     return false;
 
 }
@@ -22,17 +35,28 @@ std::vector< Pathfinding::Node* > findNeighbors(Pathfinding::Node node, bool inc
     return std::vector< Pathfinding::Node* >();
 }
 
+void Pathfinding::clearDebugView() {
 
-void debugView(Pathfinding::Node destination, std::vector< std::vector< Pathfinding::Node > > map) { 
 
-    sf::RenderTexture q;
-    q.create(3200, 3200);
-    q.clear({ 0, 0, 0, 0});
+}
+
+
+void Pathfinding::debugView(Node start, Pathfinding::Node destination, std::vector< std::vector< Pathfinding::Node > > map) { 
+
+
+    // destination
 
     sf::RectangleShape r(sf::Vector2f(32, 32));
-    r.setFillColor(sf::Color({ 255, 0, 0, 255 }));
+    r.setFillColor(sf::Color({ 0, 255, 0, 100 }));
+    r.setPosition(start.x * 32, start.y * 32);
+    m_layer->m_texture.draw(r);
+
+    //r.setFillColor(sf::Color({ 255, 0, 0, 100 }));
     r.setPosition(destination.x * 32, destination.y * 32);
-    q.draw(r);
+    m_layer->m_texture.draw(r);
+
+
+    //r.setOutlineThickness(2.f);
         
     for (int i = 0; i < map.size(); i++) {
         for (int j = 0; j < map[i].size(); j++) {
@@ -40,46 +64,39 @@ void debugView(Pathfinding::Node destination, std::vector< std::vector< Pathfind
             r.setPosition(i * 32, j * 32);
 
             if (map[i][j].status == 0) {
-                r.setFillColor(sf::Color({ 0, 0, 0, 0 }));
-                q.draw(r);
+                //r.setFillColor(sf::Color({ 255, 255,0 , 128 }));
+                //m_layer->m_texture.draw(r);
+
+
             }
+
+            // node == open
             if (map[i][j].status == 1) {
-                r.setFillColor(sf::Color({ 00, 250, 0 }));
-                q.draw(r);
+                r.setFillColor(sf::Color({ 0, 0 , 255, 128 }));
+                m_layer->m_texture.draw(r);
             }
+
+            // node == closed;
             if (map[i][j].status == 2) {
-                r.setFillColor(sf::Color({ 0, 0, 255 }));
-                q.draw(r);
-                sf::CircleShape triangle(8, 3);
-                triangle.setFillColor(sf::Color({ 240, 230, 203 }));
-                triangle.setOrigin(4, 4);
-                if (map[i][j].fromX > i) {
-                    triangle.rotate(-90);
-                }
-                if (map[i][j].fromX < i) {
-                    triangle.rotate(90);
-                }
-                if (map[i][j].fromY < j) {
-                    triangle.rotate(180);
-                }
-
-                triangle.setPosition(i * 32 + 12, j * 32 + 12);
-
-                q.draw(triangle);
+                r.setFillColor(sf::Color({ 0, 255, 0, 128 }));
+                m_layer->m_texture.draw(r);
             }
-
 
         }
     }
-
-    q.display();
-
-    app::debugLayer.draw(sf::Sprite(q.getTexture()));
 
 }
 
 // returns list of nodes
 std::vector< Pathfinding::Node > Pathfinding::find(Pathfinding::Node position, Pathfinding::Node destination, std::vector< std::vector<int> >& grid, std::vector< int > passableValues) {
+
+    if (!classInitialized) {
+
+        Pathfinding::initialize();
+
+    }
+
+    m_layer->m_texture.clear({ 0, 0, 0, 0 });
 
     // dit moet mooier en simpeler kunnen
     std::vector< std::vector< Node > > map( app::terrain.size(), std::vector<Node>( app::terrain[0].size() ));
@@ -124,9 +141,16 @@ std::vector< Pathfinding::Node > Pathfinding::find(Pathfinding::Node position, P
 
         // stap 1: vind de most promising node
         for (auto node : openNodes) {
-            if (currentNode == nullptr || node->h < currentNode->h) {
-                currentNode = node;
+            if (algorithm == GREEDY) {
+                if (currentNode == nullptr || node->h < currentNode->h) {
+                    currentNode = node;
+                }
+            } else  {
+                if (currentNode == nullptr || node->f < currentNode->f) {
+                    currentNode = node;
+                }
             }
+
         }
 
         //printf("CurrentNode: (%i, %i)\n", currentNode->x, currentNode->y);
@@ -203,14 +227,31 @@ std::vector< Pathfinding::Node > Pathfinding::find(Pathfinding::Node position, P
 
         if (currentNode->x == destination.x && currentNode->y == destination.y) {
             Node node = *currentNode;
-            printf("destination reached\n");
 
             while (!(node.x == position.x && node.y == position.y)) {
                 path.push_back(node);
+
+                sf::CircleShape triangle(8, 3);
+                triangle.setFillColor(sf::Color({ 255, 255, 255 }));
+                triangle.setOrigin(4, 4);
+
+                if (node.fromX > node.x) {
+                    triangle.rotate(-90);
+                }
+                if (node.fromX < node.x) {
+                    triangle.rotate(90);
+                }
+                if (node.fromY < node.y) {
+                    triangle.rotate(180);
+                }
+
+                triangle.setPosition(node.x * 32 + 12, node.y * 32 + 12);
+
+                m_layer->m_texture.draw(triangle);
                 node = map[ node.fromX ][ node.fromY ];
             }
 
-            debugView(destination, map);
+            debugView(position, destination, map);
 
             return path;
 
@@ -219,7 +260,7 @@ std::vector< Pathfinding::Node > Pathfinding::find(Pathfinding::Node position, P
     } while(openNodes.size() > 0);
 
     printf("geen open nodes meer\n");
-    debugView(destination, map);
+    debugView(position, destination, map);
     return path;
 
 }

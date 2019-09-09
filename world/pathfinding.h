@@ -3,10 +3,13 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include "layer.h"
 
 class Pathfinding {
 
     public: 
+
+        enum Algorithm { GREEDY, ASTAR };
 
         struct Node {
             
@@ -26,7 +29,21 @@ class Pathfinding {
         };
 
 
+        static Algorithm algorithm;
+
         static std::vector< Node > find(Node position, Node destination, std::vector< std::vector<int> >& grid, std::vector< int > passableValues);
+
+        static void clearDebugView();
+        
+
+    private:
+
+        static Layer* m_layer;
+
+        static void initialize();
+        static bool classInitialized;
+
+        static void debugView(Node start, Pathfinding::Node destination, std::vector< std::vector< Pathfinding::Node > > map);
 
 };
 
